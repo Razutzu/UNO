@@ -99,6 +99,8 @@ class Game {
 
 		return this.controlPanel.message;
 	}
+	async loading() {}
+	async start() {}
 	async end() {
 		this.embed.setDescription("The game has ended because everyone left.").data.fields = [];
 		this.components = [];
@@ -182,68 +184,68 @@ class Game {
 	//                USERS FUNCTIONS                //
 	///////////////////////////////////////////////////
 
-	async join(user) {
-		// makes a user join the game
-		if (this.users.length == 1) {
-			this.getKickButton().setDisabled(false);
-			this.getBanButton().setDisabled(false);
-			this.getLockButton().setDisabled(false);
-			this.getCHostButton().setDisabled(false);
-		}
+	// async join(user) {
+	// 	// makes a user join the game
+	// 	if (this.users.length == 1) {
+	// 		this.getKickButton().setDisabled(false);
+	// 		this.getBanButton().setDisabled(false);
+	// 		this.getLockButton().setDisabled(false);
+	// 		this.getCHostButton().setDisabled(false);
+	// 	}
 
-		if (this.controlPanelStatus == 1) this.updateUsersMenuOptions();
+	// 	if (this.controlPanelStatus == 1) this.updateUsersMenuOptions();
 
-		this.users.push(new User(user, false, this));
+	// 	this.users.push(new User(user, false, this));
 
-		this.embed.setFields(this.usersToField());
+	// 	this.embed.setFields(this.usersToField());
 
-		await this.updateControlPanel(null, false, false);
-		return await this.updateMessage();
-	}
-	async leave(gameUser) {
-		// makes a user leave the game
-		if (this.users.length == 1) return this.end();
+	// 	await this.updateControlPanel(null, false, false);
+	// 	return await this.updateMessage();
+	// }
+	// async leave(gameUser) {
+	// 	// makes a user leave the game
+	// 	if (this.users.length == 1) return this.end();
 
-		this.removeUser(gameUser);
+	// 	this.removeUser(gameUser);
 
-		if (gameUser.host) this.users[0].host = true;
+	// 	if (gameUser.host) this.users[0].host = true;
 
-		if (this.users.length == 1) {
-			this.getKickButton().setDisabled(true);
-			this.getBanButton().setDisabled(true);
-			this.getLockButton().setDisabled(true);
-			this.getCHostButton().setDisabled(true);
-			this.resetMenu();
-			if (this.locked) this.lock();
-		}
+	// 	if (this.users.length == 1) {
+	// 		this.getKickButton().setDisabled(true);
+	// 		this.getBanButton().setDisabled(true);
+	// 		this.getLockButton().setDisabled(true);
+	// 		this.getCHostButton().setDisabled(true);
+	// 		this.resetMenu();
+	// 		if (this.locked) this.lock();
+	// 	}
 
-		if (this.controlPanelStatus == 1) this.updateUsersMenuOptions();
+	// 	if (this.controlPanelStatus == 1) this.updateUsersMenuOptions();
 
-		this.embed.setFields(this.usersToField());
+	// 	this.embed.setFields(this.usersToField());
 
-		await this.updateControlPanel(null, false, gameUser.host);
-		return await this.updateMessage();
-	}
-	async unban(gameUser) {
-		// unbans a user
-		this.banned.splice(this.banned.indexOf(gameUser), 1);
+	// 	await this.updateControlPanel(null, false, gameUser.host);
+	// 	return await this.updateMessage();
+	// }
+	// async unban(gameUser) {
+	// 	// unbans a user
+	// 	this.banned.splice(this.banned.indexOf(gameUser), 1);
 
-		if (this.banned.length == 0) {
-			this.getUnbanButton().setDisabled(true);
-			this.resetMenu();
-		}
+	// 	if (this.banned.length == 0) {
+	// 		this.getUnbanButton().setDisabled(true);
+	// 		this.resetMenu();
+	// 	}
 
-		await this.updateControlPanel(null, false, false);
-		return await this.updateMessage();
-	}
-	async ban(gameUser) {
-		// bans a user
-		this.banned.push(gameUser);
+	// 	await this.updateControlPanel(null, false, false);
+	// 	return await this.updateMessage();
+	// }
+	// async ban(gameUser) {
+	// 	// bans a user
+	// 	this.banned.push(gameUser);
 
-		if (this.banned.length == 1) this.getUnbanButton().setDisabled(false);
+	// 	if (this.banned.length == 1) this.getUnbanButton().setDisabled(false);
 
-		return await this.leave(gameUser);
-	}
+	// 	return await this.leave(gameUser);
+	// }
 	async makeHost(gameUser) {
 		// makes a user the host
 		const hostUser = this.getHost();

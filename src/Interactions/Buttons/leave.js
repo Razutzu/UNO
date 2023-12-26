@@ -8,8 +8,7 @@ export default {
 		const user = game.getUser(interaction.user.id);
 		if (!user) return await interaction.reply({ embeds: [client.embeds.notJoined], ephemeral: true }).catch((err) => client.err(err));
 
-		await game.leave(user);
-
+		await user.leave();
 		await interaction.deferUpdate();
 	},
 };

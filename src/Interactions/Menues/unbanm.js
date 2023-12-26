@@ -13,7 +13,7 @@ export default {
 		const bannedUser = game.getBan(interaction.values[0]);
 		if (!bannedUser) return await interaction.reply({ embeds: [client.embeds.notJoinedSecond], ephemeral: true }).catch((err) => client.err(err));
 
-		await game.unban(bannedUser);
+		await bannedUser.unban();
 
 		await interaction.deferUpdate();
 	},
