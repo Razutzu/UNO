@@ -1,4 +1,5 @@
 import client from "../../client.js";
+import User from "../../Classes/user.js";
 
 export default {
 	run: async (interaction) => {
@@ -11,7 +12,7 @@ export default {
 
 		if (game.locked) return await interaction.reply({ embeds: [client.embeds.gameLocked], ephemeral: true }).catch((err) => client.err(er));
 
-		await game.join(interaction.user);
+		new User(interaction.user, false, game);
 
 		await interaction.deferUpdate();
 	},

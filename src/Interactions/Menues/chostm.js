@@ -13,7 +13,7 @@ export default {
 		const hostUser = game.getUser(interaction.values[0]);
 		if (!hostUser) return await interaction.reply({ embeds: [client.embeds.notJoinedSecond], ephemeral: true }).catch((err) => client.err(err));
 
-		await game.makeHost(hostUser);
+		await hostUser.makeHost();
 
 		await interaction.deferUpdate();
 	},

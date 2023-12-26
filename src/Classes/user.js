@@ -8,23 +8,23 @@ class User {
 		this.host = host;
 		this.ready = false;
 
-		// if (host) return;
+		if (host) return;
 
-		// if (this.game.users.length == 1) {
-		// 	this.game.getKickButton().setDisabled(false);
-		// 	this.game.getBanButton().setDisabled(false);
-		// 	this.game.getLockButton().setDisabled(false);
-		// 	this.game.getCHostButton().setDisabled(false);
-		// }
+		if (this.game.users.length == 1) {
+			this.game.getKickButton().setDisabled(false);
+			this.game.getBanButton().setDisabled(false);
+			this.game.getLockButton().setDisabled(false);
+			this.game.getCHostButton().setDisabled(false);
+		}
 
-		// if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
+		if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
 
-		// this.game.users.push(this);
+		this.game.users.push(this);
 
-		// this.game.embed.setFields(this.game.usersToField());
+		this.game.embed.setFields(this.game.usersToField());
 
-		// this.game.updateControlPanel(null, false, false);
-		// return this.game.updateMessage();
+		this.game.updateControlPanel(null, false, false);
+		return this.game.updateMessage();
 	}
 	async readyButton() {
 		// what happens when a player presses "Ready"
@@ -59,6 +59,7 @@ class User {
 		return await this.game.updateMessage();
 	}
 	async ban() {
+		// bans the user
 		this.game.banned.push(this);
 
 		if (this.game.banned.length == 1) this.game.getUnbanButton().setDisabled(false);
@@ -75,6 +76,24 @@ class User {
 		}
 
 		await this.game.updateControlPanel(null, false, false);
+		return await this.game.updateMessage();
+	}
+	async makeHost() {
+		// makes the user the host
+		const currentHost = this.game.getHost();
+
+		currentHost.host = false;
+		this.host = true;
+
+		const userIndex = this.game.users.indexOf(this);
+
+		this.game.users[0] = this;
+		this.game.users[userIndex] = currentHost;
+
+		this.game.resetMenu();
+		this.game.embed.setFields(this.game.usersToField());
+
+		await this.game.updateControlPanel(null, false, true);
 		return await this.game.updateMessage();
 	}
 }
