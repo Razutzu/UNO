@@ -13,6 +13,8 @@ class ExtendedClient extends Client {
 		this.ready = false;
 
 		this.games = new Map();
+		this.cards = new Map();
+
 		this.embeds = {};
 	}
 	rawData(name) {

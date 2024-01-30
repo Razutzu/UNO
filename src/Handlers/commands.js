@@ -1,4 +1,3 @@
-import { SlashCommandBuilder } from "discord.js";
 import { readdirSync } from "fs";
 
 import client from "../client.js";
