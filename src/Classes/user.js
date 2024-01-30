@@ -32,6 +32,8 @@ class User {
 
 		this.game.embed.setFields(this.game.usersToField());
 
+		if (this.game.users.filter((u) => u.ready).length == this.game.users.length) return await this.game.start();
+
 		return await this.game.updateMessage();
 	}
 	async leave() {
