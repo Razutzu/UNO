@@ -114,6 +114,8 @@ class Game {
 	///////////////////////////////////////////////////
 
 	async start() {
+		this.status = 1;
+
 		for (const user of this.users) {
 			user.ready = false;
 
