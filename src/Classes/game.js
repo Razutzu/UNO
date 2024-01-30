@@ -15,6 +15,7 @@ class Game {
 		this.players = [];
 		this.banned = [];
 
+		this.status = 0;
 		this.controlPanelStatus = 0;
 
 		this.turn = 0;
@@ -96,7 +97,7 @@ class Game {
 		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").addFields(this.usersToField());
 		this.components = [
 			new ActionRowBuilder().addComponents(
-				new ButtonBuilder().setCustomId("ready").setStyle(ButtonStyle.Success).setLabel("Ready"),
+				new ButtonBuilder().setCustomId("ready").setStyle(ButtonStyle.Success).setLabel("Ready").setDisabled(true),
 				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
 				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
 			),
@@ -123,6 +124,9 @@ class Game {
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
+	}
+	hasStarted() {
+		return this.status == 1 ? true : false;
 	}
 
 	///////////////////////////////////////////////////

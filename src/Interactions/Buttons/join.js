@@ -12,6 +12,8 @@ export default {
 
 		if (game.locked) return await interaction.reply({ embeds: [client.embeds.gameLocked], ephemeral: true }).catch((err) => client.err(er));
 
+		if (game.hasStarted()) return await interaction.reply({ embeds: [client.embeds.cantUse], ephemeral: true }).catch((err) => client.err(err));
+
 		new User(interaction.user, false, game);
 
 		await interaction.deferUpdate();

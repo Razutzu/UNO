@@ -10,10 +10,12 @@ export default {
 
 		if (!user.host) return await interaction.reply({ embeds: [client.embeds.notHost], ephemeral: true }).catch((err) => client.err(err));
 
+		if (game.hasStarted()) return await interaction.reply({ embeds: [client.embeds.cantUse], ephemeral: true }).catch((err) => client.err(err));
+
 		const kickUser = game.getUser(interaction.values[0]);
 		if (!kickUser) return await interaction.reply({ embeds: [client.embeds.notJoinedSecond], ephemeral: true }).catch((err) => client.err(err));
 
-		kickUser.leave(kickUser);
+		kickUser.leave();
 
 		await interaction.deferUpdate();
 	},

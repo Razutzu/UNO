@@ -10,6 +10,8 @@ export default {
 
 		if (!user.host) return await interaction.reply({ embeds: [client.embeds.notHost], ephemeral: true }).catch((err) => client.err(err));
 
+		if (game.hasStarted()) return await interaction.reply({ embeds: [client.embeds.cantUse], ephemeral: true }).catch((err) => client.err(err));
+
 		const bannedUser = game.getBan(interaction.values[0]);
 		if (!bannedUser) return await interaction.reply({ embeds: [client.embeds.notJoinedSecond], ephemeral: true }).catch((err) => client.err(err));
 

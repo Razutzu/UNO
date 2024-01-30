@@ -48,8 +48,7 @@ class Player {
 		return this.gamePanel.message;
 	}
 	isTurn() {
-		if (this.game.players.indexOf(this) == this.game.turn) return true;
-		return false;
+		return this.game.players.indexOf(this) == this.game.turn ? true : false;
 	}
 	cardsToString() {
 		return "ceva";

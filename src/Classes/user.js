@@ -15,6 +15,7 @@ class User {
 			this.game.getBanButton().setDisabled(false);
 			this.game.getLockButton().setDisabled(false);
 			this.game.getCHostButton().setDisabled(false);
+			this.game.getReadyButton().setDisabled(false);
 		}
 
 		if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
@@ -50,6 +51,7 @@ class User {
 			this.game.getLockButton().setDisabled(true);
 			this.game.getCHostButton().setDisabled(true);
 			this.game.resetMenu();
+			this.game.getReadyButton().setDisabled(true);
 			if (this.game.locked) this.game.lock();
 		}
 

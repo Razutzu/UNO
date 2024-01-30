@@ -12,5 +12,7 @@ export default () => {
 		notHost: new EmbedBuilder().setColor(client.clr).setDescription("You are not the host of the game."),
 		gameLocked: new EmbedBuilder().setColor(client.clr).setDescription("This game is locked."),
 		banned: new EmbedBuilder().setColor(client.clr).setDescription("You are banned from this game."),
+		oneMorePlayer: new EmbedBuilder().setColor(client.clr).setDescription("At least one more player must join to use this button."),
+		cantUse: new EmbedBuilder().setColor(client.clr).setDescription("You can't do that durin the game."),
 	};
 };
