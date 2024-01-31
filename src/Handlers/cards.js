@@ -1,7 +1,7 @@
-import client from "../client.js";
-import cards from "../JSON/cards.json" assert { type: "json" };
-
 import { AttachmentBuilder } from "discord.js";
+
+import cards from "../JSON/cards.json" assert { type: "json" };
+import client from "../client.js";
 
 export default async () => {
 	for (const card of cards) {

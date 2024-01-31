@@ -1,6 +1,5 @@
 import { Client, Colors, GatewayIntentBits } from "discord.js";
 
-import data from "./JSON/data.json" assert { type: "json" };
 import chalk from "chalk";
 import dotenv from "dotenv";
 

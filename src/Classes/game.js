@@ -1,8 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 
+import cards from "../JSON/cards.json" assert { type: "json" };
 import client from "../client.js";
-import User from "./user.js";
+
+import Card from "./card.js";
 import Player from "./player.js";
+import User from "./user.js";
 
 class Game {
 	constructor(interaction, maxPlayers) {
@@ -19,6 +22,8 @@ class Game {
 		this.controlPanelStatus = 0;
 
 		this.turn = 0;
+
+		this.deck = [];
 
 		// game starting data
 		this.embed = null;
@@ -94,6 +99,7 @@ class Game {
 		return this.controlPanel.message;
 	}
 	lobby() {
+		// lobby embed and components
 		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").addFields(this.usersToField());
 		this.components = [
 			new ActionRowBuilder().addComponents(
@@ -101,12 +107,13 @@ class Game {
 				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
 				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
 			),
-			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cpanel").setStyle(ButtonStyle.Danger).setLabel("Request Control Panel")),
+			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cpanel").setStyle(ButtonStyle.Danger).setLabel("Control Panel")),
 		];
 	}
 	game() {
+		// game embed and components
 		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").addFields(this.playersToField());
-		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Request Game Panel"))];
+		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Game Panel"))];
 	}
 
 	///////////////////////////////////////////////////
@@ -114,6 +121,7 @@ class Game {
 	///////////////////////////////////////////////////
 
 	async start() {
+		// starts the match
 		this.status = 1;
 
 		for (const user of this.users) {
@@ -128,8 +136,22 @@ class Game {
 		return await this.updateMessage();
 	}
 	hasStarted() {
+		// has the game started?
 		return this.status == 1 ? true : false;
 	}
+
+	///////////////////////////////////////////////////
+	//                CARDS FUNCTIONS                //
+	///////////////////////////////////////////////////
+
+	refillDeck() {
+		// reffils the deck
+		for (const card of cards) this.deck.push(new Card(card));
+
+		return this.deck;
+	}
+	removeCard(card) {}
+	getCard(card) {}
 
 	///////////////////////////////////////////////////
 	//                LOBBY FUNCTIONS                //
@@ -273,13 +295,15 @@ class Game {
 	//               PLAYERS FUNCTIONS               //
 	///////////////////////////////////////////////////
 
+	getPlayer() {}
+	removePlayer() {}
 	playersToField() {
 		// return a field with all players (game)
 		let value = "";
 
 		for (const player of this.players) {
-			if (player.isTurn()) value += `> **🎮 ${player.user.username} - ${player.cards.length}**\n`;
-			else value += `> 🎮 ${player.user.username} - ${player.cards.length}\n`;
+			if (player.isTurn()) value += `> **🎮 ${player.user.username} - ${player.cards.length} cards**\n`;
+			else value += `> 🎮 ${player.user.username} - ${player.cards.length} cards\n`;
 		}
 
 		return {

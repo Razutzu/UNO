@@ -1,5 +1,3 @@
-import client from "../client.js";
-
 class User {
 	constructor(user, host, game) {
 		this.user = user;

@@ -1,4 +1,4 @@
-import { EmbedBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 
 import client from "../client.js";
 
