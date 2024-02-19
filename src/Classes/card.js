@@ -1,15 +1,20 @@
 import client from "../client.js";
 
 class Card {
-	constructor(card) {
-		this.game = null;
-		this.user = null;
+	constructor(card, game) {
+		this.game = game;
+		this.player = null;
 
-		this.color = null;
-		this.value = null;
+		this.color = card.startsWith("Wild") ? "Wild" : card.split(" ")[0];
+		this.value = card.startsWith("Wild") ? "Wild" : card.split(" ").slice(1).join(" ");
 
-		this.attachment = null;
-		this.path = null;
+		this.attachment = client.cards.get(card);
+
+		console.log(this.attachment);
+	}
+	changeOwner(player) {
+		// changes the owner of the card
+		return (this.player = player);
 	}
 }
 

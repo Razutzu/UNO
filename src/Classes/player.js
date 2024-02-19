@@ -27,6 +27,7 @@ class Player {
 		};
 	}
 	async updateGamePanel(interaction, request, disable) {
+		// updates the player's game panel
 		if (disable) {
 			if (this.gamePanel.message)
 				await this.controlPanel.message.interaction.editReply({ content: "The game panel has been disabled.", embeds: [], components: [] }).catch((err) => client.err(err));
@@ -49,7 +50,23 @@ class Player {
 		return this.gamePanel.message;
 	}
 	isTurn() {
+		// is it this player's turn?
 		return this.game.players.indexOf(this) == this.game.turn ? true : false;
+	}
+	addCard(card) {
+		// adds a specific card to this player
+	}
+	addRandomCards(amount) {
+		// adds random cards to this users
+		for (let i = 0; i < amount; i++) {
+			const card = this.game.getRandomCard();
+			card.changeOwner(this);
+
+			this.cards.push(card);
+			this.game.removeCard(card);
+		}
+
+		return this.cards;
 	}
 	cardsToString() {
 		return "ceva";

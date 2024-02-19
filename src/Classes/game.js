@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 
-import cards from "../JSON/cards.json" assert { type: "json" };
+import pack from "../JSON/pack.json" assert { type: "json" };
 import client from "../client.js";
 
 import Card from "./card.js";
@@ -124,13 +124,19 @@ class Game {
 		// starts the match
 		this.status = 1;
 
+		// this.game();
+		this.refillDeck();
+
 		for (const user of this.users) {
 			user.ready = false;
 
-			this.players.push(new Player(user));
+			const player = new Player(user);
+			player.addRandomCards(7);
+
+			this.players.push(player);
 		}
 
-		this.game();
+		console.log(this.deck.length);
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
@@ -146,12 +152,18 @@ class Game {
 
 	refillDeck() {
 		// reffils the deck
-		for (const card of cards) this.deck.push(new Card(card));
-
+		for (const card of pack) this.deck.push(new Card(card, this));
 		return this.deck;
 	}
-	removeCard(card) {}
+	removeCard(card) {
+		// removes a card from the pack
+		return this.deck.splice(this.deck.indexOf(card), 1);
+	}
 	getCard(card) {}
+	getRandomCard() {
+		// returns a random card from the pack
+		return this.deck[Math.floor(Math.random() * this.deck.length)];
+	}
 
 	///////////////////////////////////////////////////
 	//                LOBBY FUNCTIONS                //
@@ -302,6 +314,7 @@ class Game {
 		let value = "";
 
 		for (const player of this.players) {
+			console.log(player.cards.length);
 			if (player.isTurn()) value += `> **🎮 ${player.user.username} - ${player.cards.length} cards**\n`;
 			else value += `> 🎮 ${player.user.username} - ${player.cards.length} cards\n`;
 		}
