@@ -2,11 +2,15 @@ import client from "../client.js";
 
 class Card {
 	constructor(card, game) {
+		const cardArray = card.split(" ");
+
 		this.game = game;
 		this.player = null;
 
-		this.color = card.startsWith("Wild") ? "Wild" : card.split(" ")[0];
-		this.value = card.startsWith("Wild") ? "Wild" : card.split(" ").slice(1).join(" ");
+		this.name = card;
+
+		this.color = cardArray[0];
+		this.value = cardArray[cardArray.length - 1];
 
 		this.attachment = client.cards.get(card);
 

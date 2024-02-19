@@ -100,7 +100,7 @@ class Game {
 	}
 	lobby() {
 		// lobby embed and components
-		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").addFields(this.usersToField());
+		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").setFields(this.usersToField());
 		this.components = [
 			new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId("ready").setStyle(ButtonStyle.Success).setLabel("Ready").setDisabled(true),
@@ -112,7 +112,7 @@ class Game {
 	}
 	game() {
 		// game embed and components
-		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").addFields(this.playersToField());
+		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").setFields(this.playersToField());
 		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Game Panel"))];
 	}
 
@@ -124,7 +124,6 @@ class Game {
 		// starts the match
 		this.status = 1;
 
-		// this.game();
 		this.refillDeck();
 
 		for (const user of this.users) {
@@ -136,7 +135,7 @@ class Game {
 			this.players.push(player);
 		}
 
-		console.log(this.deck.length);
+		this.game();
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
@@ -159,7 +158,10 @@ class Game {
 		// removes a card from the pack
 		return this.deck.splice(this.deck.indexOf(card), 1);
 	}
-	getCard(card) {}
+	getCard(card) {
+		// returns a specific card from the pack
+		return this.deck.find((c) => c.name == card);
+	}
 	getRandomCard() {
 		// returns a random card from the pack
 		return this.deck[Math.floor(Math.random() * this.deck.length)];
@@ -307,14 +309,18 @@ class Game {
 	//               PLAYERS FUNCTIONS               //
 	///////////////////////////////////////////////////
 
-	getPlayer() {}
-	removePlayer() {}
+	getPlayer(id) {
+		// returns a player (game)
+		return this.players.find((p) => p.user.id == id);
+	}
+	removePlayer(player) {
+		// removes a player (game)
+	}
 	playersToField() {
 		// return a field with all players (game)
 		let value = "";
 
 		for (const player of this.players) {
-			console.log(player.cards.length);
 			if (player.isTurn()) value += `> **🎮 ${player.user.username} - ${player.cards.length} cards**\n`;
 			else value += `> 🎮 ${player.user.username} - ${player.cards.length} cards\n`;
 		}
@@ -327,3 +333,4 @@ class Game {
 }
 
 export default Game;
+``;
