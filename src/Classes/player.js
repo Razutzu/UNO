@@ -11,7 +11,7 @@ class Player {
 
 		this.gamePanel = {
 			message: null,
-			embed: new EmbedBuilder().setColor(client.clr).setDescription(this.cardsToString()),
+			embed: new EmbedBuilder().setColor(client.clr),
 			components: [
 				new ActionRowBuilder().addComponents(
 					new ButtonBuilder().setCustomId("draw").setStyle(ButtonStyle.Primary).setLabel("Draw").setDisabled(!gameUser.host),
@@ -22,7 +22,6 @@ class Player {
 						.setCustomId("play")
 						.setPlaceholder(gameUser.host ? "Choose a card to play" : "Not your turn")
 						.setDisabled(!gameUser.host)
-						.addOptions(this.cardsToField())
 				),
 			],
 		};
@@ -70,22 +69,34 @@ class Player {
 		return this.cards;
 	}
 	sortCards() {
-		// sorts the card
+		// sorts the card~
 		this.cards.sort((c1, c2) => {
 			return cardSortOrder.color[c1.color] + cardSortOrder.value[c1.value] - (cardSortOrder.color[c2.color] + cardSortOrder.value[c2.value]);
 		});
 
-		for (const card of this.cards) {
-			console.log(card.name);
-		}
+		return this.cards;
 	}
 	// am ramas aici
 	cardsToString() {
 		// returns a string with the cards
-		return "ceva";
+		let value = "";
+
+		for (const card of this.cards) {
+			if (card.isPlayable()) value += `**${card.name}** \n`;
+			else value += `${card.name}\n`;
+		}
+
+		return value;
 	}
 	cardsToField() {
+		g;
 		// returns a field with the cards
+		let value = [];
+
+		for (const card of this.cards.filter((c) => c.isPlayable()))
+			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(card.id));
+
+		return value;
 	}
 }
 

@@ -8,17 +8,19 @@ class Card {
 		this.player = null;
 
 		this.name = card;
+		this.id = cardArray.join("_");
 
 		this.color = cardArray[0];
 		this.value = cardArray[cardArray.length - 1];
 
 		this.attachment = client.cards.get(card);
-
-		console.log(this.attachment);
 	}
 	changeOwner(player) {
 		// changes the owner of the card
 		return (this.player = player);
+	}
+	isPlayable() {
+		return this.color == "Wild" || (this.color == this.game.lastCard.color) == this.color || this.value == this.game.lastCard.value;
 	}
 }
 

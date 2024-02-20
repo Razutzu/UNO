@@ -24,6 +24,7 @@ class Game {
 		this.turn = 0;
 
 		this.deck = [];
+		this.lastCard = null;
 
 		// game starting data
 		this.embed = null;
@@ -125,12 +126,17 @@ class Game {
 		this.status = 1;
 
 		this.refillDeck();
+		this.lastCard = this.getRandomCard();
 
 		for (const user of this.users) {
 			user.ready = false;
 
 			const player = new Player(user);
 			player.addRandomCards(7);
+			player.sortCards();
+			player.gamePanel.embed.setDescription(player.cardsToString());
+			player.cardsToField();
+			player.gamePanel.components[1].components[0].setOptions(player.cardsToField());
 
 			this.players.push(player);
 		}
