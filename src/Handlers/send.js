@@ -16,6 +16,7 @@ export default () => {
 		cantUse: new EmbedBuilder().setColor(client.clr).setDescription("You can't do that during the game."),
 		notStarted: new EmbedBuilder().setColor(client.clr).setDescription("The game hasn't started yet."),
 		notPlaying: new EmbedBuilder().setColor(client.clr).setDescription("You are not playing this round."),
+		noCard: new EmbedBuilder().setColor(client.clr).setDescription("You do not have that card."),
 	};
 	client.components = {
 		nothing: new StringSelectMenuOptionBuilder().setLabel("Nothing").setValue("nothing"),

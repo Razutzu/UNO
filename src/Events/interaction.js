@@ -10,7 +10,11 @@ export default {
 		else if (interaction.isButton()) {
 			if (interaction.customId.includes("_")) path += `Buttons/${interaction.customId.split("_")[0]}.js`;
 			else path += `Buttons/${interaction.customId}.js`;
-		} else if (interaction.isStringSelectMenu()) path += `Menues/${interaction.customId}.js`;
+		} else if (interaction.isStringSelectMenu()) {
+			console.log(interaction.customId);
+			if (interaction.customId.includes("_")) path += `Menues/${interaction.customId.split("_")[0]}.js`;
+			else path += `Menues/${interaction.customId}.js`;
+		}
 		try {
 			const file = await import(path);
 			await file.default.run(interaction);

@@ -50,12 +50,33 @@ class Player {
 
 		return this.gamePanel.message;
 	}
+	playCard(card) {
+		card.changeOwner(null);
+		this.removeCard(card);
+
+		this.game.lastCard = card;
+		this.game.updateCardImage();
+
+		this.updateGamePanel(null, false, false);
+
+		// am ramas aici
+	}
 	isTurn() {
 		// is it this player's turn?
 		return this.game.players.indexOf(this) == this.game.turn;
 	}
+	getCard(cardId) {
+		// returns a specific card from the hand
+		return this.cards.find((c) => c.id == cardId);
+	}
 	addCard(card) {
 		// adds a specific card to this player
+		card.changeOwner(this);
+
+		this.cards.push(card);
+		this.game.removeCard(card);
+
+		return this.cards;
 	}
 	addRandomCards(amount) {
 		// adds random cards to this users
@@ -68,6 +89,10 @@ class Player {
 		}
 
 		return this.cards;
+	}
+	removeCard(card) {
+		// removes a card from the hand
+		return this.cards.splice(this.cards.indexOf(card), 1);
 	}
 	sortCards() {
 		// sorts the cards
@@ -94,7 +119,7 @@ class Player {
 		const value = [];
 
 		for (const card of this.cards.filter((c) => c.isPlayable()))
-			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(`play_${card.id}`));
+			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(card.id));
 
 		if (value.length == 0) {
 			this.gamePanel.components[1].components[0].setDisabled(true).setPlaceholder("No cards to play");

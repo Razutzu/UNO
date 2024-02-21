@@ -111,16 +111,19 @@ class Game {
 			),
 			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cpanel").setStyle(ButtonStyle.Danger).setLabel("Control Panel")),
 		];
+
+		return this.embed;
 	}
 	game() {
 		// game embed and components
 		this.embed = new EmbedBuilder()
 			.setColor(client.clr)
 			.setDescription(`All the players received their cards.\nThe last card from the deck was flipped over: **${this.lastCard.name}**`)
-			.setThumbnail(this.lastCard.attachment)
 			.setFields(this.playersToField());
 		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Game Panel"))];
-		this.files = [client.cards.get(this.lastCard.name)];
+		this.updateCardImage();
+
+		return this.embed;
 	}
 
 	///////////////////////////////////////////////////
@@ -139,6 +142,7 @@ class Game {
 
 			const player = new Player(user);
 			player.addRandomCards(7);
+			player.addCard(this.getPlayableCard());
 			player.sortCards();
 			player.gamePanel.embed.setDescription(player.cardsToString());
 
@@ -151,6 +155,16 @@ class Game {
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
+	}
+	changeTurn() {
+		// changes the turn
+	}
+	updateCardImage() {
+		// updates the card image
+		this.embed.setThumbnail(this.lastCard.attachment);
+		this.files = [client.cards.get(this.lastCard.name)];
+
+		return this.embed;
 	}
 	hasStarted() {
 		// has the game started?
@@ -170,13 +184,18 @@ class Game {
 		// removes a card from the pack
 		return this.deck.splice(this.deck.indexOf(card), 1);
 	}
-	getCard(card) {
+	getCard(cardId) {
 		// returns a specific card from the pack
-		return this.deck.find((c) => c.name == card);
+		return this.deck.find((c) => c.id == cardId);
 	}
 	getRandomCard() {
 		// returns a random card from the pack
 		return this.deck[Math.floor(Math.random() * this.deck.length)];
+	}
+	getPlayableCard() {
+		// returns a playale card (testing function)
+		const playableCards = this.deck.filter((c) => c.isPlayable());
+		return playableCards[Math.floor(Math.random() * playableCards.length)];
 	}
 
 	///////////////////////////////////////////////////
