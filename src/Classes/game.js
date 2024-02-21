@@ -29,6 +29,7 @@ class Game {
 		// game starting data
 		this.embed = null;
 		this.components = null;
+		this.files = null;
 		this.lobby();
 
 		// control panel starting data
@@ -65,11 +66,11 @@ class Game {
 
 	async updateMessage() {
 		// updates the game message when in lobby
-		if (!this.message) this.message = await this.channel.send({ embeds: [this.embed], components: this.components }).catch((err) => client.err(err));
+		if (!this.message) this.message = await this.channel.send({ embeds: [this.embed], components: this.components, files: this.files }).catch((err) => client.err(err));
 		else
-			await this.message.edit({ embeds: [this.embed], components: this.components }).catch(async (err) => {
+			await this.message.edit({ embeds: [this.embed], components: this.components, files: this.files }).catch(async (err) => {
 				client.err(er);
-				this.message = await this.channel.send({ embeds: [this.embed], components: this.components }).catch((err) => client.err(err));
+				this.message = await this.channel.send({ embeds: [this.embed], components: this.components, files: this.files }).catch((err) => client.err(err));
 			});
 
 		return this.message;
@@ -113,8 +114,13 @@ class Game {
 	}
 	game() {
 		// game embed and components
-		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").setFields(this.playersToField());
+		this.embed = new EmbedBuilder()
+			.setColor(client.clr)
+			.setDescription(`All the players received their cards.\nThe last card from the deck was flipped over: **${this.lastCard.name}**`)
+			.setThumbnail(this.lastCard.attachment)
+			.setFields(this.playersToField());
 		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Game Panel"))];
+		this.files = [client.cards.get(this.lastCard.name)];
 	}
 
 	///////////////////////////////////////////////////
@@ -135,11 +141,11 @@ class Game {
 			player.addRandomCards(7);
 			player.sortCards();
 			player.gamePanel.embed.setDescription(player.cardsToString());
-			player.cardsToField();
-			player.gamePanel.components[1].components[0].setOptions(player.cardsToField());
 
 			this.players.push(player);
 		}
+
+		this.players[0].gamePanel.components[1].components[0].setOptions(this.players[0].cardsToField());
 
 		this.game();
 
@@ -321,6 +327,7 @@ class Game {
 	}
 	removePlayer(player) {
 		// removes a player (game)
+		return this.players.splice(this.users.indexOf(player, 1));
 	}
 	playersToField() {
 		// return a field with all players (game)
@@ -339,4 +346,3 @@ class Game {
 }
 
 export default Game;
-``;

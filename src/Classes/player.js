@@ -22,6 +22,7 @@ class Player {
 						.setCustomId("play")
 						.setPlaceholder(gameUser.host ? "Choose a card to play" : "Not your turn")
 						.setDisabled(!gameUser.host)
+						.addOptions(client.components.nothing)
 				),
 			],
 		};
@@ -69,7 +70,7 @@ class Player {
 		return this.cards;
 	}
 	sortCards() {
-		// sorts the card~
+		// sorts the cards
 		this.cards.sort((c1, c2) => {
 			return cardSortOrder.color[c1.color] + cardSortOrder.value[c1.value] - (cardSortOrder.color[c2.color] + cardSortOrder.value[c2.value]);
 		});
@@ -89,12 +90,18 @@ class Player {
 		return value;
 	}
 	cardsToField() {
-		g;
 		// returns a field with the cards
-		let value = [];
+		const value = [];
 
 		for (const card of this.cards.filter((c) => c.isPlayable()))
-			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(card.id));
+			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(`play_${card.id}`));
+
+		if (value.length == 0) {
+			this.gamePanel.components[1].components[0].setDisabled(true).setPlaceholder("No cards to play");
+			value.push(client.components.nothing);
+		} else if (this.gamePanel.components[1].components[0] && this.gamePanel.components[1].components[0].data.disabled) {
+			this.gamePanel.components[1].components[0].setDisabled(false).setPlaceholder("Choose a card to play");
+		}
 
 		return value;
 	}

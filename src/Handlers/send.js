@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { StringSelectMenuOptionBuilder, EmbedBuilder } from "discord.js";
 
 import client from "../client.js";
 
@@ -16,5 +16,8 @@ export default () => {
 		cantUse: new EmbedBuilder().setColor(client.clr).setDescription("You can't do that during the game."),
 		notStarted: new EmbedBuilder().setColor(client.clr).setDescription("The game hasn't started yet."),
 		notPlaying: new EmbedBuilder().setColor(client.clr).setDescription("You are not playing this round."),
+	};
+	client.components = {
+		nothing: new StringSelectMenuOptionBuilder().setLabel("Nothing").setValue("nothing"),
 	};
 };

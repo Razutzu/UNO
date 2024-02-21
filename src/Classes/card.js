@@ -13,7 +13,7 @@ class Card {
 		this.color = cardArray[0];
 		this.value = cardArray[cardArray.length - 1];
 
-		this.attachment = client.cards.get(card);
+		this.attachment = `attachment://${cardArray.join("")}.png`;
 	}
 	changeOwner(player) {
 		// changes the owner of the card
