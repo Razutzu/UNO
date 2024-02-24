@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 
+import cardToEmbedColors from "../JSON/cardToEmbedColors.json" assert { type: "json" };
 import pack from "../JSON/pack.json" assert { type: "json" };
 import client from "../client.js";
 
@@ -22,6 +23,7 @@ class Game {
 		this.controlPanelStatus = 0;
 
 		this.turn = 0;
+		this.nextTurn = 1;
 
 		this.deck = [];
 		this.lastCard = null;
@@ -117,8 +119,10 @@ class Game {
 	game() {
 		// game embed and components
 		this.embed = new EmbedBuilder()
-			.setColor(client.clr)
-			.setDescription(`All the players received their cards.\nThe last card from the deck was flipped over: **${this.lastCard.name}**`)
+			.setColor(cardToEmbedColors[this.lastCard.color])
+			.setDescription(
+				`All the players received their cards.\nThe last card from the deck was flipped over: **${this.lastCard.name}**\n\nIt is ${this.players[this.turn].user.username}'s turn`
+			)
 			.setFields(this.playersToField());
 		this.components = [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("gpanel").setStyle(ButtonStyle.Danger).setLabel("Game Panel"))];
 		this.updateCardImage();
@@ -141,23 +145,40 @@ class Game {
 			user.ready = false;
 
 			const player = new Player(user);
+
+			this.players.push(player);
+
 			player.addRandomCards(7);
 			player.addCard(this.getPlayableCard());
 			player.sortCards();
-			player.gamePanel.embed.setDescription(player.cardsToString());
 
-			this.players.push(player);
+			player.updateEmbedCards();
+			player.updateMenuCards();
 		}
-
-		this.players[0].gamePanel.components[1].components[0].setOptions(this.players[0].cardsToField());
 
 		this.game();
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
 	}
-	changeTurn() {
+	async changeTurn(nextPlayerWithSkip, message) {
 		// changes the turn
+		if (nextPlayerWithSkip) this.turn = this.players.indexOf(nextPlayerWithSkip);
+		else this.turn = this.turn == this.players.length - 1 ? 0 : this.turn + 1;
+
+		this.embed.setColor(cardToEmbedColors[this.lastCard.color]).setDescription(message).setFields(this.playersToField());
+		this.updateCardImage();
+
+		for (const player of this.players) {
+			player.updateEmbedCards();
+			player.updateMenuCards();
+			player.updateDrawButton();
+			player.gamePanel.embed.setColor(cardToEmbedColors[this.lastCard.color]);
+
+			await player.updateGamePanel(null, false, false);
+		}
+
+		return await this.updateMessage();
 	}
 	updateCardImage() {
 		// updates the card image
@@ -194,7 +215,7 @@ class Game {
 	}
 	getPlayableCard() {
 		// returns a playale card (testing function)
-		const playableCards = this.deck.filter((c) => c.isPlayable());
+		const playableCards = this.deck.filter((c) => c.isPlayable() && c.value == "Two");
 		return playableCards[Math.floor(Math.random() * playableCards.length)];
 	}
 
@@ -343,6 +364,12 @@ class Game {
 	getPlayer(id) {
 		// returns a player (game)
 		return this.players.find((p) => p.user.id == id);
+	}
+	getNextPlayer() {
+		return this.players[this.turn == this.players.length - 1 ? 0 : this.turn + 1];
+	}
+	getNextPlayerWithSkip() {
+		return this.players[this.turn == this.players.length - 2 ? 0 : this.turn == this.players.length - 1 ? 1 : this.turn + 1];
 	}
 	removePlayer(player) {
 		// removes a player (game)

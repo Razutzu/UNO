@@ -15,12 +15,12 @@ class Card {
 
 		this.attachment = `attachment://${cardArray.join("")}.png`;
 	}
-	changeOwner(player) {
-		// changes the owner of the card
-		return (this.player = player);
-	}
+	// changeOwner(player) {
+	// 	// changes the owner of the card
+	// 	return (this.player = player);
+	// }
 	isPlayable() {
-		return this.color == "Wild" || (this.color == this.game.lastCard.color) == this.color || this.value == this.game.lastCard.value;
+		return this.color == "Wild" || this.color == this.game.lastCard.color || this.value == this.game.lastCard.value;
 	}
 }
 

@@ -17,13 +17,7 @@ class Player {
 					new ButtonBuilder().setCustomId("draw").setStyle(ButtonStyle.Primary).setLabel("Draw").setDisabled(!gameUser.host),
 					new ButtonBuilder().setCustomId("uno").setStyle(ButtonStyle.Danger).setLabel("Uno!").setDisabled(true)
 				),
-				new ActionRowBuilder().addComponents(
-					new StringSelectMenuBuilder()
-						.setCustomId("play")
-						.setPlaceholder(gameUser.host ? "Choose a card to play" : "Not your turn")
-						.setDisabled(!gameUser.host)
-						.addOptions(client.components.nothing)
-				),
+				new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId("play").setDisabled(!gameUser.host)),
 			],
 		};
 	}
@@ -50,16 +44,67 @@ class Player {
 
 		return this.gamePanel.message;
 	}
-	playCard(card) {
-		card.changeOwner(null);
+	updateEmbedCards() {
+		// updates the cards in the embed
+		return this.gamePanel.embed.setDescription(this.cardsToString());
+	}
+	updateMenuCards() {
+		// updates the cards in the menu
+		if (!this.isTurn()) return this.gamePanel.components[1].components[0].setPlaceholder("Not your turn").setOptions(client.components.nothing).setDisabled(true);
+		return this.gamePanel.components[1].components[0].setOptions(this.cardsToField());
+	}
+	getDrawButton() {
+		// returns the draw button
+		return this.gamePanel.components[0].components.find((b) => b.data.custom_id == "draw");
+	}
+	updateDrawButton() {
+		// updates the draw button
+		return this.getDrawButton().setDisabled(!this.isTurn());
+	}
+
+	///////////////////////////////////////////////////
+	//                CARDS FUNCTIONS                //
+	///////////////////////////////////////////////////
+
+	async playCard(card) {
+		// makes the player play a car
+		// card.changeOwner(null);
 		this.removeCard(card);
 
 		this.game.lastCard = card;
-		this.game.updateCardImage();
 
-		this.updateGamePanel(null, false, false);
+		let nextPlayerWithSkip = null;
 
-		// am ramas aici
+		switch (card.value) {
+			case "Skip":
+				nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
+				await this.game.changeTurn(
+					nextPlayerWithSkip,
+					`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+				);
+				break;
+			case "Reverse":
+				break;
+			case "Two":
+				const drawPlayer = this.game.getNextPlayer();
+				nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
+
+				drawPlayer.addRandomCards(2);
+				await this.game.changeTurn(
+					nextPlayerWithSkip,
+					`${this.user.username} plays a **${card.name}** and ${drawPlayer.user.username} draws 2 cards.\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+				);
+				break;
+			case "Wild":
+				break;
+			case "Four":
+				break;
+			default:
+				nextPlayerWithSkip = null;
+				await this.game.changeTurn(0, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+		}
+
+		return this.cards;
 	}
 	isTurn() {
 		// is it this player's turn?
@@ -71,7 +116,7 @@ class Player {
 	}
 	addCard(card) {
 		// adds a specific card to this player
-		card.changeOwner(this);
+		// card.changeOwner(this);
 
 		this.cards.push(card);
 		this.game.removeCard(card);
@@ -82,7 +127,7 @@ class Player {
 		// adds random cards to this users
 		for (let i = 0; i < amount; i++) {
 			const card = this.game.getRandomCard();
-			card.changeOwner(this);
+			// card.changeOwner(this);
 
 			this.cards.push(card);
 			this.game.removeCard(card);
@@ -102,7 +147,6 @@ class Player {
 
 		return this.cards;
 	}
-	// am ramas aici
 	cardsToString() {
 		// returns a string with the cards
 		let value = "";
@@ -119,14 +163,14 @@ class Player {
 		const value = [];
 
 		for (const card of this.cards.filter((c) => c.isPlayable()))
-			if (!value.find((c) => c.name == card.name)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(card.id));
+			if (!value.find((c) => c.data.value == card.id)) value.push(new StringSelectMenuOptionBuilder().setLabel(card.name).setValue(card.id));
 
 		if (value.length == 0) {
 			this.gamePanel.components[1].components[0].setDisabled(true).setPlaceholder("No cards to play");
 			value.push(client.components.nothing);
-		} else if (this.gamePanel.components[1].components[0] && this.gamePanel.components[1].components[0].data.disabled) {
-			this.gamePanel.components[1].components[0].setDisabled(false).setPlaceholder("Choose a card to play");
-		}
+		} else this.gamePanel.components[1].components[0].setDisabled(false).setPlaceholder("Choose a card to play");
+
+		console.log(value);
 
 		return value;
 	}

@@ -8,7 +8,7 @@ dotenv.config();
 class ExtendedClient extends Client {
 	constructor(options) {
 		super(options);
-		this.clr = Colors.Red;
+		this.clr = "#d40000";
 		this.ready = false;
 
 		this.games = new Map();
