@@ -9,6 +9,8 @@ class Player {
 
 		this.cards = [];
 
+		this.status = 1;
+
 		this.gamePanel = {
 			message: null,
 			embed: new EmbedBuilder().setColor(client.clr),
@@ -19,30 +21,60 @@ class Player {
 				),
 				new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId("play").setDisabled(!gameUser.host)),
 			],
+			files: null,
 		};
 	}
 	async updateGamePanel(interaction, request, disable) {
 		// updates the player's game panel
 		if (disable) {
 			if (this.gamePanel.message)
-				await this.controlPanel.message.interaction.editReply({ content: "The game panel has been disabled.", embeds: [], components: [] }).catch((err) => client.err(err));
+				await this.controlPanel.message.interaction
+					.editReply({ content: "The game panel has been disabled.", embeds: [], components: [], files: this.gamePanel.files })
+					.catch((err) => client.err(err));
 			return (this.gamePanel.message = null);
 		}
 		if (request) {
 			if (this.gamePanel.message)
 				await this.gamePanel.message.interaction.editReply({ content: "You requested another game panel.", embeds: [], components: [] }).catch((err) => client.err(err));
 			if (interaction)
-				this.gamePanel.message = await interaction.reply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, ephemeral: true }).catch((err) => client.err(err));
+				this.gamePanel.message = await interaction
+					.reply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, files: this.gamePanel.files, ephemeral: true })
+					.catch((err) => client.err(err));
 		} else {
 			if (this.gamePanel.message)
-				this.gamePanel.message.interaction.editReply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components }).catch(async (err) => {
+				this.gamePanel.message.interaction.editReply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, files: this.gamePanel.files }).catch(async (err) => {
 					client.err(err);
 					if (interaction)
-						this.gamePanel.message = await interaction.reply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, ephemeral: true }).catch((err) => client.err(err));
+						this.gamePanel.message = await interaction
+							.reply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, files: this.gamePanel.files, ephemeral: true })
+							.catch((err) => client.err(err));
 				});
 		}
 
 		return this.gamePanel.message;
+	}
+	normalGamePanel() {
+		this.gamePanel.embed = new EmbedBuilder().setColor(client.clr);
+		this.gamePanel.components = [
+			new ActionRowBuilder().addComponents(
+				new ButtonBuilder().setCustomId("draw").setStyle(ButtonStyle.Primary).setLabel("Draw").setDisabled(true),
+				new ButtonBuilder().setCustomId("uno").setStyle(ButtonStyle.Danger).setLabel("Uno!").setDisabled(true)
+			),
+			new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId("play").setDisabled(true)),
+		];
+		this.gamePanel.files = [];
+	}
+	wildGamePanel(card) {
+		this.setCardImage(card);
+		this.gamePanel.embed.setDescription("Choose a color");
+		this.gamePanel.components = [
+			new ActionRowBuilder().addComponents(
+				new ButtonBuilder().setCustomId("wild_b").setStyle(ButtonStyle.Secondary).setEmoji(`🟦`),
+				new ButtonBuilder().setCustomId("wild_g").setStyle(ButtonStyle.Secondary).setEmoji(`🟩`),
+				new ButtonBuilder().setCustomId("wild_r").setStyle(ButtonStyle.Secondary).setEmoji(`🟥`),
+				new ButtonBuilder().setCustomId("wild_y").setStyle(ButtonStyle.Secondary).setEmoji(`🟨`)
+			),
+		];
 	}
 	updateEmbedCards() {
 		// updates the cards in the embed
@@ -69,9 +101,11 @@ class Player {
 	async playCard(card) {
 		// makes the player play a car
 		// card.changeOwner(null);
-		this.removeCard(card);
+		if ((this.status == 1 && card.value != "Wild") || (card.value == "Wild" && this.status == 2)) {
+			this.removeCard(card);
 
-		this.game.lastCard = card;
+			this.game.lastCard = card;
+		}
 
 		let nextPlayerWithSkip = null;
 
@@ -96,12 +130,27 @@ class Player {
 				);
 				break;
 			case "Wild":
+				if (this.status == 2) {
+					nextPlayerWithSkip = null;
+
+					this.status = 1;
+					this.normalGamePanel();
+
+					await this.game.changeTurn(
+						nextPlayerWithSkip,
+						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`
+					);
+				} else {
+					this.status = 2;
+					this.wildGamePanel(card);
+					await this.updateGamePanel(null, false, false);
+				}
 				break;
 			case "Four":
 				break;
 			default:
 				nextPlayerWithSkip = null;
-				await this.game.changeTurn(0, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
 		}
 
 		return this.cards;
@@ -109,6 +158,14 @@ class Player {
 	isTurn() {
 		// is it this player's turn?
 		return this.game.players.indexOf(this) == this.game.turn;
+	}
+	setCardImage(card) {
+		this.gamePanel.embed.setImage(card.attachment);
+		this.gamePanel.files = [client.cards.get(card.name)];
+	}
+	removeCardImage() {
+		this.gamePanel.embed.data.image = null;
+		this.gamePanel.files = null;
 	}
 	getCard(cardId) {
 		// returns a specific card from the hand
@@ -169,8 +226,6 @@ class Player {
 			this.gamePanel.components[1].components[0].setDisabled(true).setPlaceholder("No cards to play");
 			value.push(client.components.nothing);
 		} else this.gamePanel.components[1].components[0].setDisabled(false).setPlaceholder("Choose a card to play");
-
-		console.log(value);
 
 		return value;
 	}

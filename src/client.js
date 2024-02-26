@@ -16,6 +16,18 @@ class ExtendedClient extends Client {
 
 		this.embeds = {};
 	}
+	idToColor(id) {
+		switch (id) {
+			case "b":
+				return "Blue";
+			case "g":
+				return "Green";
+			case "r":
+				return "Red";
+			case "y":
+				return "Yellow";
+		}
+	}
 	rawData(name) {
 		return data[name];
 	}

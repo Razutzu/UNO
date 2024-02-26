@@ -183,6 +183,7 @@ class Game {
 	updateCardImage() {
 		// updates the card image
 		this.embed.setThumbnail(this.lastCard.attachment);
+		console.log(client.cards.get(this.lastCard.name));
 		this.files = [client.cards.get(this.lastCard.name)];
 
 		return this.embed;
@@ -215,7 +216,7 @@ class Game {
 	}
 	getPlayableCard() {
 		// returns a playale card (testing function)
-		const playableCards = this.deck.filter((c) => c.isPlayable() && c.value == "Two");
+		const playableCards = this.deck.filter((c) => c.isPlayable() && c.value == "Wild");
 		return playableCards[Math.floor(Math.random() * playableCards.length)];
 	}
 

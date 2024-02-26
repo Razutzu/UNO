@@ -17,6 +17,7 @@ export default () => {
 		notStarted: new EmbedBuilder().setColor(client.clr).setDescription("The game hasn't started yet."),
 		notPlaying: new EmbedBuilder().setColor(client.clr).setDescription("You are not playing this round."),
 		noCard: new EmbedBuilder().setColor(client.clr).setDescription("You do not have that card."),
+		notWild: new EmbedBuilder().setColor(client.clr).setDescription("You did not play a Wild card."),
 	};
 	client.components = {
 		nothing: new StringSelectMenuOptionBuilder().setLabel("Nothing").setValue("nothing"),
