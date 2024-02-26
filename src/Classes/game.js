@@ -170,6 +170,7 @@ class Game {
 		this.updateCardImage();
 
 		for (const player of this.players) {
+			player.sortCards();
 			player.updateEmbedCards();
 			player.updateMenuCards();
 			player.updateDrawButton();
