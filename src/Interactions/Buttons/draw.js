@@ -1,4 +1,4 @@
-import client from "../../client.js";
+import client from "../../client";
 
 export default {
 	run: async (interaction) => {
@@ -12,16 +12,5 @@ export default {
 
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
-
-		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYouTurn], ephemeral: true }).catch((err) => client.err(err));
-
-		if (player.status != 2) return await interaction.reply({ embeds: [client.embeds.notWild], ephemeral: true });
-
-		const card = player.getCard("Wild");
-		card.update(client.idToColor(interaction.customId.split("_").at(-1)));
-
-		await player.playCard(card);
-
-		return await interaction.deferUpdate();
 	},
 };
