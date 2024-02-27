@@ -16,9 +16,11 @@ class User {
 			this.game.getReadyButton().setDisabled(false);
 		}
 
-		if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
-
 		this.game.users.push(this);
+
+		if (this.game.isFull()) this.game.getJoinButton().setDisabled(true);
+
+		if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
 
 		this.game.embed.setFields(this.game.usersToField());
 
@@ -38,6 +40,8 @@ class User {
 	async leave() {
 		// makes the user leave
 		if (this.game.users.length == 1) return this.game.end();
+
+		if (this.game.isFull()) this.game.getJoinButton().setDisabled(false);
 
 		this.game.removeUser(this);
 

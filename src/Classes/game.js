@@ -319,6 +319,9 @@ class Game {
 	//                USERS FUNCTIONS                //
 	///////////////////////////////////////////////////
 
+	isFull() {
+		return this.users.length == this.maxPlayers;
+	}
 	getUser(id) {
 		// returns a user
 		return this.users.find((u) => u.user.id === id);
