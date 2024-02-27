@@ -139,7 +139,7 @@ class Game {
 		this.status = 1;
 
 		this.refillDeck();
-		this.lastCard = this.getRandomCard();
+		this.lastCard = this.getRandomCard(true);
 
 		for (const user of this.users) {
 			user.ready = false;
@@ -154,6 +154,7 @@ class Game {
 
 			player.updateEmbedCards();
 			player.updateMenuCards();
+			player.gamePanel.embed.setColor(cardToEmbedColors[this.lastCard.color]);
 		}
 
 		this.game();
@@ -211,8 +212,13 @@ class Game {
 		// returns a specific card from the pack
 		return this.deck.find((c) => c.id == cardId);
 	}
-	getRandomCard() {
+	getRandomCard(lastCard) {
 		// returns a random card from the pack
+		if (lastCard) {
+			const noWildDeck = this.deck.filter((c) => c.color != "Wild");
+
+			return noWildDeck[Math.floor(Math.random() * noWildDeck.length)];
+		}
 		return this.deck[Math.floor(Math.random() * this.deck.length)];
 	}
 	getPlayableCard() {

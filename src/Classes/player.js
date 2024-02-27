@@ -28,14 +28,12 @@ class Player {
 		// updates the player's game panel
 		if (disable) {
 			if (this.gamePanel.message)
-				await this.controlPanel.message.interaction
-					.editReply({ content: "The game panel has been disabled.", embeds: [], components: [], files: this.gamePanel.files })
-					.catch((err) => client.err(err));
+				await this.controlPanel.message.interaction.editReply({ content: "The game panel has been disabled.", embeds: [], components: [], files: [] }).catch((err) => client.err(err));
 			return (this.gamePanel.message = null);
 		}
 		if (request) {
 			if (this.gamePanel.message)
-				await this.gamePanel.message.interaction.editReply({ content: "You requested another game panel.", embeds: [], components: [] }).catch((err) => client.err(err));
+				await this.gamePanel.message.interaction.editReply({ content: "You requested another game panel.", embeds: [], components: [], files: [] }).catch((err) => client.err(err));
 			if (interaction)
 				this.gamePanel.message = await interaction
 					.reply({ embeds: [this.gamePanel.embed], components: this.gamePanel.components, files: this.gamePanel.files, ephemeral: true })
@@ -66,7 +64,7 @@ class Player {
 	}
 	wildGamePanel(card) {
 		this.setCardImage(card);
-		this.gamePanel.embed.setDescription("Choose a color");
+		this.gamePanel.embed.setAuthor({ name: "Choose a card " });
 		this.gamePanel.components = [
 			new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId("wild_b").setStyle(ButtonStyle.Secondary).setEmoji(`🟦`),
