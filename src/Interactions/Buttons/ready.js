@@ -14,6 +14,6 @@ export default {
 
 		await user.readyButton();
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

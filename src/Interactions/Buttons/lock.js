@@ -12,6 +12,6 @@ export default {
 
 		await game.lock();
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

@@ -17,6 +17,6 @@ export default {
 
 		await banUser.ban();
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

@@ -17,6 +17,6 @@ export default {
 
 		await hostUser.makeHost();
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

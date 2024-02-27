@@ -12,6 +12,6 @@ export default {
 
 		if (game.hasStarted()) return await interaction.reply({ embeds: [client.embeds.cantUse], ephemeral: true }).catch((err) => client.err(err));
 
-		await game.updateControlPanel(interaction, true, false);
+		return await game.updateControlPanel(interaction, true, false);
 	},
 };

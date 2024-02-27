@@ -13,6 +13,6 @@ export default {
 
 		client.games.set(interaction.channel.id, new Game(interaction, interaction.options.getInteger("players") || 10));
 
-		await interaction.reply({ embeds: [new EmbedBuilder().setColor(client.clr).setDescription(`Game created successfully!`)], ephemeral: true }).catch((err) => client.err(err));
+		return await interaction.reply({ embeds: [new EmbedBuilder().setColor(client.clr).setDescription(`Game created successfully!`)], ephemeral: true }).catch((err) => client.err(err));
 	},
 };

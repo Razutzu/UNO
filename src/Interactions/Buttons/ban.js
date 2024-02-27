@@ -15,6 +15,6 @@ export default {
 		game.banMenu();
 		await game.updateControlPanel(null, false, false);
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

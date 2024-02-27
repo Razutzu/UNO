@@ -22,6 +22,7 @@ export default {
 		if (!card.isPlayable()) return await interaction.reply({ embeds: [client.embeds.cardNotPlayable], ephemeral: true }).catch((err) => client.err(err));
 
 		await player.playCard(card);
+
 		return await interaction.deferUpdate();
 	},
 };

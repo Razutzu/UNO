@@ -13,6 +13,6 @@ export default {
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
 
-		await player.updateGamePanel(interaction, true, false);
+		return await player.updateGamePanel(interaction, true, false);
 	},
 };

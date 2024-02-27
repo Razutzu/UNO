@@ -11,7 +11,7 @@ export default async () => {
 		commandsArr.push(command.default.data);
 	}
 
-	await client.application.commands
+	return await client.application.commands
 		.set(commandsArr)
 		.then(() => client.success(`Commands updated`))
 		.catch((err) => client.err(err));

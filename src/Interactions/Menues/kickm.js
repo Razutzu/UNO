@@ -17,6 +17,6 @@ export default {
 
 		kickUser.leave();
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

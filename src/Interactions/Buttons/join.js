@@ -18,6 +18,6 @@ export default {
 
 		new User(interaction.user, false, game);
 
-		await interaction.deferUpdate();
+		return await interaction.deferUpdate();
 	},
 };

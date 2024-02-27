@@ -9,6 +9,7 @@ export default {
 		if (!user) return await interaction.reply({ embeds: [client.embeds.notJoined], ephemeral: true }).catch((err) => client.err(err));
 
 		await user.leave();
-		await interaction.deferUpdate();
+
+		return await interaction.deferUpdate();
 	},
 };

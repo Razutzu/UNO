@@ -11,4 +11,6 @@ export default async () => {
 
 		client.cards.set(card, attachment);
 	}
+
+	return client.cards;
 };

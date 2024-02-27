@@ -1,4 +1,4 @@
-import client from "../../client";
+import client from "../../client.js";
 
 export default {
 	run: async (interaction) => {
@@ -12,5 +12,13 @@ export default {
 
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
+
+		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYourTurn], ephemeral: true }).catch((err) => client.err(err));
+
+		if (player.status != 1) return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
+
+		await player.drawCard();
+
+		return await interaction.deferUpdate();
 	},
 };

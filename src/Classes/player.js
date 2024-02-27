@@ -24,6 +24,15 @@ class Player {
 			files: null,
 		};
 	}
+	isTurn() {
+		// is it this player's turn?
+		return this.game.players.indexOf(this) == this.game.turn;
+	}
+
+	///////////////////////////////////////////////////
+	//                PANEL FUNCTIONS                //
+	///////////////////////////////////////////////////
+
 	async updateGamePanel(interaction, request, disable) {
 		// updates the player's game panel
 		if (disable) {
@@ -161,9 +170,10 @@ class Player {
 
 		return this.cards;
 	}
-	isTurn() {
-		// is it this player's turn?
-		return this.game.players.indexOf(this) == this.game.turn;
+	async drawCard() {
+		this.addRandomCards(1);
+
+		return await this.game.changeTurn(null, `${this.user.username} draws a card.\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
 	}
 	setCardImage(card) {
 		this.gamePanel.embed.setImage(card.attachment);
