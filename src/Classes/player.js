@@ -72,6 +72,7 @@ class Player {
 				new ButtonBuilder().setCustomId("wild_r").setStyle(ButtonStyle.Secondary).setEmoji(`🟥`),
 				new ButtonBuilder().setCustomId("wild_y").setStyle(ButtonStyle.Secondary).setEmoji(`🟨`)
 			),
+			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cancel").setStyle(ButtonStyle.Danger).setLabel("Cancel")),
 		];
 	}
 	updateEmbedCards() {
@@ -116,6 +117,16 @@ class Player {
 				);
 				break;
 			case "Reverse":
+				if (this.game.players.length == 2) {
+					nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
+					await this.game.changeTurn(
+						nextPlayerWithSkip,
+						`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+					);
+				} else {
+					this.game.reversed = !this.game.reversed;
+					await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+				}
 				break;
 			case "Two":
 				const drawPlayer = this.game.getNextPlayer();
@@ -129,8 +140,6 @@ class Player {
 				break;
 			case "Wild":
 				if (this.status == 2) {
-					nextPlayerWithSkip = null;
-
 					this.status = 1;
 					this.normalGamePanel();
 
@@ -147,7 +156,6 @@ class Player {
 			case "Four":
 				break;
 			default:
-				nextPlayerWithSkip = null;
 				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
 		}
 

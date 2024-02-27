@@ -14,6 +14,7 @@ class Game {
 		this.maxPlayers = maxPlayers;
 
 		this.locked = false;
+		this.reversed = false;
 
 		this.users = [new User(interaction.user, true, this)];
 		this.players = [];
@@ -165,7 +166,10 @@ class Game {
 	async changeTurn(nextPlayerWithSkip, message) {
 		// changes the turn
 		if (nextPlayerWithSkip) this.turn = this.players.indexOf(nextPlayerWithSkip);
-		else this.turn = this.turn == this.players.length - 1 ? 0 : this.turn + 1;
+		else {
+			if (this.reversed) this.turn = this.turn == 0 ? this.players.length - 1 : this.turn - 1;
+			else this.turn = this.turn == this.players.length - 1 ? 0 : this.turn + 1;
+		}
 
 		this.embed.setColor(cardToEmbedColors[this.lastCard.color]).setDescription(message).setFields(this.playersToField());
 		this.updateCardImage();
@@ -377,9 +381,11 @@ class Game {
 		return this.players.find((p) => p.user.id == id);
 	}
 	getNextPlayer() {
+		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 1 : this.turn - 1];
 		return this.players[this.turn == this.players.length - 1 ? 0 : this.turn + 1];
 	}
 	getNextPlayerWithSkip() {
+		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 2 : this.turn == 1 ? this.players.length - 1 : this.turn - 1];
 		return this.players[this.turn == this.players.length - 2 ? 0 : this.turn == this.players.length - 1 ? 1 : this.turn + 1];
 	}
 	removePlayer(player) {
