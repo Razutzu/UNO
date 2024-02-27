@@ -15,7 +15,7 @@ export default {
 
 		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYouTurn], ephemeral: true }).catch((err) => client.err(err));
 
-		if (player.status != 2) return await interaction.reply({ embeds: [client.embeds.notWild], ephemeral: true });
+		if (player.status != 2) return await interaction.reply({ embeds: [client.embeds.notWild], ephemeral: true }).catch((err) => client.err(err));
 
 		const card = player.getCard("Wild");
 		card.update(client.idToColor(interaction.customId.split("_").at(-1)));

@@ -13,8 +13,13 @@ export default {
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
 
+		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYourTurn], ephemeral: true }).catch((err) => client.err(err));
+
+		if (player.status != 1) return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
+
 		const card = player.getCard(interaction.values[0]);
 		if (!card) return await interaction.reply({ embeds: [client.embeds.noCard], ephemeral: true }).catch((err) => client.err(err));
+		if (!card.isPlayable()) return await interaction.reply({ embeds: [client.embeds.cardNotPlayable], ephemeral: true }).catch((err) => client.err(err));
 
 		await player.playCard(card);
 		return await interaction.deferUpdate();

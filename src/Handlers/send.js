@@ -20,6 +20,8 @@ export default () => {
 		notWild: new EmbedBuilder().setColor(client.clr).setDescription("You did not play a Wild card."),
 		gameFull: new EmbedBuilder().setColor(client.clr).setDescription("The game is already full."),
 		notYourTurn: new EmbedBuilder().setColor(client.clr).setDescription("It is not you turn."),
+		cantPlay: new EmbedBuilder().setColor(client.clr).setDescription("You can't play another card."),
+		cardNotPlayable: new EmbedBuilder().setColor(client.clr).setDescription("You can't play that card."),
 	};
 	client.components = {
 		nothing: new StringSelectMenuOptionBuilder().setLabel("Nothing").setValue("nothing"),
