@@ -149,7 +149,7 @@ class Game {
 
 			this.players.push(player);
 
-			player.addRandomCards(7);
+			player.addRandomCards(2); // de schimbat
 			player.addCard(this.getPlayableCard());
 			player.sortCards();
 
@@ -179,6 +179,7 @@ class Game {
 			player.updateEmbedCards();
 			player.updateMenuCards();
 			player.updateDrawButton();
+			player.updateUnoButton();
 			player.gamePanel.embed.setColor(cardToEmbedColors[this.lastCard.color]);
 
 			await player.updateGamePanel(null, false, false);
@@ -385,8 +386,8 @@ class Game {
 		return this.players[this.turn == this.players.length - 1 ? 0 : this.turn + 1];
 	}
 	getNextPlayerWithSkip() {
-		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 2 : this.turn == 1 ? this.players.length - 1 : this.turn - 1];
-		return this.players[this.turn == this.players.length - 2 ? 0 : this.turn == this.players.length - 1 ? 1 : this.turn + 1];
+		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 2 : this.turn == 1 ? this.players.length - 1 : this.turn - 2];
+		return this.players[this.turn == this.players.length - 2 ? 0 : this.turn == this.players.length - 1 ? 1 : this.turn + 2];
 	}
 	removePlayer(player) {
 		// removes a player (game)

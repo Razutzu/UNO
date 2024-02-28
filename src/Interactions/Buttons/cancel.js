@@ -21,6 +21,7 @@ export default {
 		player.updateEmbedCards();
 		player.updateMenuCards();
 		player.updateDrawButton();
+		player.updateUnoButton();
 		player.status = 1;
 
 		await player.updateGamePanel(null, false, false);

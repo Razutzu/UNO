@@ -97,9 +97,17 @@ class Player {
 		// returns the draw button
 		return this.gamePanel.components[0].components.find((b) => b.data.custom_id == "draw");
 	}
+	getUnoButton() {
+		return this.gamePanel.components[0].components.find((b) => b.data.custom_id == "uno");
+	}
 	updateDrawButton() {
 		// updates the draw button
 		return this.getDrawButton().setDisabled(!this.isTurn());
+	}
+	updateUnoButton() {
+		// updates the un button
+		if (this.isTurn() && this.cards.length == 2) return this.getUnoButton().setDisabled(false);
+		return this.getUnoButton().setDisabled(this.game.players.find((p) => p.cards.length == 1) ? false : true);
 	}
 
 	///////////////////////////////////////////////////
@@ -134,7 +142,7 @@ class Player {
 					);
 				} else {
 					this.game.reversed = !this.game.reversed;
-					await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+					await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
 				}
 				break;
 			case "Two":
@@ -154,7 +162,7 @@ class Player {
 
 					await this.game.changeTurn(
 						nextPlayerWithSkip,
-						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`
+						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`
 					);
 				} else {
 					this.status = 2;
@@ -165,7 +173,7 @@ class Player {
 			case "Four":
 				break;
 			default:
-				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
 		}
 
 		return this.cards;
@@ -173,7 +181,7 @@ class Player {
 	async drawCard() {
 		this.addRandomCards(1);
 
-		return await this.game.changeTurn(null, `${this.user.username} draws a card.\n\nIt is ${this.game.players[this.game.turn].user.username}'s turn`);
+		return await this.game.changeTurn(null, `${this.user.username} draws a card.\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
 	}
 	setCardImage(card) {
 		this.gamePanel.embed.setImage(card.attachment);
