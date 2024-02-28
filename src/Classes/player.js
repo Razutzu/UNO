@@ -70,6 +70,8 @@ class Player {
 			new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId("play").setDisabled(true)),
 		];
 		this.gamePanel.files = [];
+
+		return true;
 	}
 	wildGamePanel(card) {
 		this.setCardImage(card);
@@ -83,6 +85,8 @@ class Player {
 			),
 			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cancel").setStyle(ButtonStyle.Danger).setLabel("Cancel")),
 		];
+
+		return true;
 	}
 	updateEmbedCards() {
 		// updates the cards in the embed
@@ -106,8 +110,13 @@ class Player {
 	}
 	updateUnoButton() {
 		// updates the un button
-		if (this.isTurn() && this.cards.length == 2) return this.getUnoButton().setDisabled(false);
-		return this.getUnoButton().setDisabled(this.game.players.find((p) => p.cards.length == 1) ? false : true);
+		if (this.isTurn() && this.cards.length == 2 && this.cards.find((c) => c.isPlayable())) {
+			if (!this.game.mustCallUno.find((p) => p.player == this)) this.game.mustCallUno.push({ player: this, turns: 0 });
+			return this.getUnoButton().setDisabled(false);
+		}
+		return this.getUnoButton()
+			.setStyle(ButtonStyle.Danger)
+			.setDisabled(this.game.mustCallUno[0]?.turns > 0 ? false : true);
 	}
 
 	///////////////////////////////////////////////////
@@ -179,17 +188,53 @@ class Player {
 		return this.cards;
 	}
 	async drawCard() {
+		// makes the player draw a card
 		this.addRandomCards(1);
+
+		if (this.game.calledUno == this) this.game.calledUno = null;
 
 		return await this.game.changeTurn(null, `${this.user.username} draws a card.\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
 	}
+	async uno() {
+		// makes the player call UNO!
+		if (this.game.mustCallUno[0].player == this) {
+			if (this.isTurn() && this.game.mustCallUno[0].turns == 0) {
+				this.game.mustCallUno.shift();
+				this.game.calledUno = this;
+				this.getUnoButton().setStyle(ButtonStyle.Success).setDisabled(true);
+
+				return await this.updateGamePanel(null, false, false);
+			} else this.game.embed.data.description += `\n\n${this.user.username} calls UNO!`;
+		} else {
+			this.game.embed.data.description += `\n\n${this.user.username} calls UNO! before ${this.game.mustCallUno[0].player.user.username}\n\n${this.game.mustCallUno[0].player.user.username} draws 2 cards`;
+			this.game.mustCallUno[0].player.addRandomCards(2);
+			this.game.mustCallUno[0].player.sortCards();
+			this.game.mustCallUno[0].player.updateEmbedCards();
+		}
+
+		this.game.mustCallUno.shift();
+		for (const player of this.game.players) {
+			player.updateUnoButton();
+
+			await player.updateGamePanel(null, false, false);
+		}
+
+		return await this.game.updateMessage(null, false, false);
+	}
 	setCardImage(card) {
+		// sets the card image
+
 		this.gamePanel.embed.setImage(card.attachment);
 		this.gamePanel.files = [client.cards.get(card.name)];
+
+		return true;
 	}
 	removeCardImage() {
+		// removes the card image
 		this.gamePanel.embed.data.image = null;
 		this.gamePanel.files = null;
+
+		return true;
 	}
 	getCard(cardId) {
 		// returns a specific card from the hand

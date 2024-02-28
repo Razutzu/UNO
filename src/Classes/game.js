@@ -20,11 +20,13 @@ class Game {
 		this.players = [];
 		this.banned = [];
 
+		this.mustCallUno = [];
+		this.calledUno = null;
+
 		this.status = 0;
 		this.controlPanelStatus = 0;
 
 		this.turn = 0;
-		this.nextTurn = 1;
 
 		this.deck = [];
 		this.lastCard = null;
@@ -165,13 +167,21 @@ class Game {
 	}
 	async changeTurn(nextPlayerWithSkip, message) {
 		// changes the turn
+		if (this.mustCallUno[0]) {
+			if (this.mustCallUno[0].turns == 0) this.mustCallUno[0].turns++;
+			else this.mustCallUno.shift();
+		}
+
 		if (nextPlayerWithSkip) this.turn = this.players.indexOf(nextPlayerWithSkip);
 		else {
 			if (this.reversed) this.turn = this.turn == 0 ? this.players.length - 1 : this.turn - 1;
 			else this.turn = this.turn == this.players.length - 1 ? 0 : this.turn + 1;
 		}
 
-		this.embed.setColor(cardToEmbedColors[this.lastCard.color]).setDescription(message).setFields(this.playersToField());
+		this.embed
+			.setColor(cardToEmbedColors[this.lastCard.color])
+			.setDescription(`${message}${this.calledUno ? `\n\n${this.calledUno.user.username} calls UNO!` : ""}`)
+			.setFields(this.playersToField());
 		this.updateCardImage();
 
 		for (const player of this.players) {
@@ -325,6 +335,7 @@ class Game {
 	///////////////////////////////////////////////////
 
 	isFull() {
+		// is the game full?
 		return this.users.length == this.maxPlayers;
 	}
 	getUser(id) {
@@ -382,10 +393,12 @@ class Game {
 		return this.players.find((p) => p.user.id == id);
 	}
 	getNextPlayer() {
+		// next player without skip
 		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 1 : this.turn - 1];
 		return this.players[this.turn == this.players.length - 1 ? 0 : this.turn + 1];
 	}
 	getNextPlayerWithSkip() {
+		// next player with skip
 		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 2 : this.turn == 1 ? this.players.length - 1 : this.turn - 2];
 		return this.players[this.turn == this.players.length - 2 ? 0 : this.turn == this.players.length - 1 ? 1 : this.turn + 2];
 	}
