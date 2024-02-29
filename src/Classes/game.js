@@ -151,7 +151,7 @@ class Game {
 
 			this.players.push(player);
 
-			player.addRandomCards(2); // de schimbat
+			player.addRandomCards(6); // de schimbat
 			player.addCard(this.getPlayableCard());
 			player.sortCards();
 
@@ -183,6 +183,8 @@ class Game {
 			.setDescription(`${message}${this.calledUno ? `\n\n${this.calledUno.user.username} calls UNO!` : ""}`)
 			.setFields(this.playersToField());
 		this.updateCardImage();
+
+		this.calledUno = null;
 
 		for (const player of this.players) {
 			player.sortCards();
@@ -238,7 +240,7 @@ class Game {
 	}
 	getPlayableCard() {
 		// returns a playale card (testing function)
-		const playableCards = this.deck.filter((c) => c.isPlayable() && c.value == "Wild");
+		const playableCards = this.deck.filter((c) => c.isPlayable());
 		return playableCards[Math.floor(Math.random() * playableCards.length)];
 	}
 

@@ -17,12 +17,19 @@ export default {
 
 		if (player.status != 2) return await interaction.reply({ embeds: [client.embeds.notWild], ephemeral: true }).catch((err) => client.err(err));
 
-		player.normalGamePanel();
-		player.updateEmbedCards();
-		player.updateMenuCards();
-		player.updateDrawButton();
-		player.updateUnoButton();
-		player.status = 1;
+		if (player.preStatus == 1) {
+			player.normalGamePanel();
+			player.updateEmbedCards();
+			player.updateMenuCards();
+			player.updateDrawButton();
+			player.updateUnoButton();
+			player.status = 1;
+		} else if (player.preStatus == 3) {
+			player.drawGamePanel(player.getCard(interaction.customId.split("_").slice(1).join("_")));
+			player.status = 3;
+		}
+
+		player.preStatus = player.status;
 
 		await player.updateGamePanel(null, false, false);
 

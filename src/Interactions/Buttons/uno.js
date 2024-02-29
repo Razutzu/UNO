@@ -13,7 +13,8 @@ export default {
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
 
-		if (player.status != 1) return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
+		if (player.status != 1 && player.status != 3 && game.mustCallUno[0].player == player)
+			return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
 
 		await player.uno();
 

@@ -13,14 +13,18 @@ export default {
 		const player = game.getPlayer(interaction.user.id);
 		if (!player) return await interaction.reply({ embeds: [client.embeds.notPlaying], ephemeral: true }).catch((err) => client.err(err));
 
-		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYouTurn], ephemeral: true }).catch((err) => client.err(err));
+		if (!player.isTurn()) return await interaction.reply({ embeds: [client.embeds.notYourTurn], ephemeral: true }).catch((err) => client.err(err));
 
-		if (player.status != 2) return await interaction.reply({ embeds: [client.embeds.notWild], ephemeral: true }).catch((err) => client.err(err));
+		if (player.status != 3) return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
 
-		const id = interaction.customId.split("_");
+		const card = player.getCard(interaction.customId.split("_").slice(1).join("_"));
+		if (!card) return await interaction.reply({ embeds: [client.embeds.noCard], ephemeral: true }).catch((err) => client.err(err));
 
-		const card = player.getCard(id[1] == "four" ? "Wild_Draw_Four" : "Wild");
-		card.update(client.idToColor(id.at(-1)));
+		player.preStatus = player.status;
+		if (card.color != "Wild") {
+			player.status = 1;
+			player.normalGamePanel();
+		}
 
 		await player.playCard(card);
 

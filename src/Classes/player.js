@@ -9,6 +9,7 @@ class Player {
 
 		this.cards = [];
 
+		this.preStatus = 1;
 		this.status = 1;
 
 		this.gamePanel = {
@@ -61,6 +62,7 @@ class Player {
 		return this.gamePanel.message;
 	}
 	normalGamePanel() {
+		// changes the game panel to status 1
 		this.gamePanel.embed = new EmbedBuilder().setColor(client.clr);
 		this.gamePanel.components = [
 			new ActionRowBuilder().addComponents(
@@ -73,18 +75,37 @@ class Player {
 
 		return true;
 	}
-	wildGamePanel(card) {
+	wildGamePanel(card, id) {
+		// changes the game panel to status 2
 		this.setCardImage(card);
-		this.gamePanel.embed.setAuthor({ name: "Choose a card " });
+		this.gamePanel.embed.setAuthor({ name: "Choose a color" });
 		this.gamePanel.components = [
 			new ActionRowBuilder().addComponents(
-				new ButtonBuilder().setCustomId("wild_b").setStyle(ButtonStyle.Secondary).setEmoji(`🟦`),
-				new ButtonBuilder().setCustomId("wild_g").setStyle(ButtonStyle.Secondary).setEmoji(`🟩`),
-				new ButtonBuilder().setCustomId("wild_r").setStyle(ButtonStyle.Secondary).setEmoji(`🟥`),
-				new ButtonBuilder().setCustomId("wild_y").setStyle(ButtonStyle.Secondary).setEmoji(`🟨`)
+				new ButtonBuilder().setCustomId(`${id}_b`).setStyle(ButtonStyle.Secondary).setEmoji(`🟦`),
+				new ButtonBuilder().setCustomId(`${id}_g`).setStyle(ButtonStyle.Secondary).setEmoji(`🟩`),
+				new ButtonBuilder().setCustomId(`${id}_r`).setStyle(ButtonStyle.Secondary).setEmoji(`🟥`),
+				new ButtonBuilder().setCustomId(`${id}_y`).setStyle(ButtonStyle.Secondary).setEmoji(`🟨`)
 			),
-			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cancel").setStyle(ButtonStyle.Danger).setLabel("Cancel")),
+			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`cancel_${card.id}`).setStyle(ButtonStyle.Danger).setLabel("Cancel")),
 		];
+
+		return true;
+	}
+	drawGamePanel(card) {
+		// changes the game panel to status 3
+		this.setCardImage(card);
+		this.gamePanel.embed.setAuthor({ name: `You drew a playable a ${card.name}` }).setDescription("Keep it or play it?");
+		this.gamePanel.components = [
+			new ActionRowBuilder().addComponents(
+				new ButtonBuilder().setCustomId(`play_${card.id}`).setStyle(ButtonStyle.Primary).setLabel("Play"),
+				new ButtonBuilder().setCustomId(`keep_${card.id}`).setStyle(ButtonStyle.Danger).setLabel("Keep")
+			),
+		];
+
+		if (this.cards.length == 2) {
+			this.gamePanel.components[0].components.push(new ButtonBuilder().setCustomId("uno").setStyle(ButtonStyle.Danger).setLabel("Uno!").setDisabled(false));
+			if (!this.game.mustCallUno.find((p) => p.player == this)) this.game.mustCallUno.push({ player: this, turns: 0 });
+		}
 
 		return true;
 	}
@@ -126,7 +147,7 @@ class Player {
 	async playCard(card) {
 		// makes the player play a car
 		// card.changeOwner(null);
-		if ((this.status == 1 && card.value != "Wild") || (card.value == "Wild" && this.status == 2)) {
+		if ((this.status == 1 && card.color != "Wild") || (["Wild", "Four"].includes(card.value) && this.status == 2)) {
 			this.removeCard(card);
 
 			this.game.lastCard = card;
@@ -161,11 +182,12 @@ class Player {
 				drawPlayer.addRandomCards(2);
 				await this.game.changeTurn(
 					nextPlayerWithSkip,
-					`${this.user.username} plays a **${card.name}** and ${drawPlayer.user.username} draws 2 cards.\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+					`${this.user.username} plays a **${card.name}** and ${drawPlayer.user.username} draws 2 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
 				);
 				break;
 			case "Wild":
 				if (this.status == 2) {
+					this.preStatus = this.status;
 					this.status = 1;
 					this.normalGamePanel();
 
@@ -174,12 +196,34 @@ class Player {
 						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`
 					);
 				} else {
+					this.preStatus = this.status;
 					this.status = 2;
-					this.wildGamePanel(card);
+					this.wildGamePanel(card, "wild");
 					await this.updateGamePanel(null, false, false);
 				}
 				break;
 			case "Four":
+				if (this.status == 2) {
+					const drawPlayer = this.game.getNextPlayer();
+					nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
+
+					drawPlayer.addRandomCards(4);
+
+					this.preStatus = this.status;
+					this.status = 1;
+					this.normalGamePanel();
+
+					await this.game.changeTurn(
+						nextPlayerWithSkip,
+						`${this.user.username} plays a **${card.name}** and changes the color to ${card.color}\n\n${drawPlayer.user.username} draws 4 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+					);
+				} else {
+					this.preStatus = this.status;
+					this.status = 2;
+					this.wildGamePanel(card, "wild_four");
+
+					await this.updateGamePanel(null, false, false);
+				}
 				break;
 			default:
 				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
@@ -189,11 +233,24 @@ class Player {
 	}
 	async drawCard() {
 		// makes the player draw a card
-		this.addRandomCards(1);
+		const card = this.game.getPlayableCard();
+		this.addCard(card);
 
+		if (this.status == 1 && card.isPlayable()) {
+			this.preStatus = this.status;
+			this.status = 3;
+			this.drawGamePanel(card);
+
+			return await this.updateGamePanel(null, false, false);
+		}
+
+		return await this.keepCard();
+	}
+	async keepCard() {
+		// keeps a playable drawn card
 		if (this.game.calledUno == this) this.game.calledUno = null;
 
-		return await this.game.changeTurn(null, `${this.user.username} draws a card.\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
+		return await this.game.changeTurn(null, `${this.user.username} draws a card\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
 	}
 	async uno() {
 		// makes the player call UNO!
