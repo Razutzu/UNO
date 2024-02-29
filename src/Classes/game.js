@@ -213,7 +213,7 @@ class Game {
 
 		return await this.updateMessage(null, false, false);
 	}
-	async changeTurn(nextPlayerWithSkip, message, timeoutForce) {
+	async changeTurn(nextPlayerWithSkip, message, timeoutForce, playerLeft) {
 		// changes the turn
 		console.log(this.inactiveTurns);
 
@@ -232,7 +232,7 @@ class Game {
 		}
 
 		if (nextPlayerWithSkip) this.turn = this.players.indexOf(nextPlayerWithSkip);
-		else {
+		else if (!playerLeft) {
 			if (this.reversed) this.turn = this.turn == 0 ? this.players.length - 1 : this.turn - 1;
 			else this.turn = this.turn == this.players.length - 1 ? 0 : this.turn + 1;
 		}
@@ -322,7 +322,7 @@ class Game {
 					.setCustomId("ready")
 					.setStyle(ButtonStyle.Success)
 					.setLabel("Ready")
-					.setDisabled(!(this.players.length > 1)),
+					.setDisabled(this.users.length == 1),
 				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
 				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
 			),
@@ -477,8 +477,9 @@ class Game {
 		// returns a player (game)
 		return this.players.find((p) => p.user.id == id);
 	}
-	getNextPlayer() {
+	getNextPlayer(playerLeft) {
 		// next player without skip
+		if (playerLeft) return this.players[this.turn];
 		if (this.reversed) return this.players[this.turn == 0 ? this.players.length - 1 : this.turn - 1];
 		return this.players[this.turn == this.players.length - 1 ? 0 : this.turn + 1];
 	}
@@ -489,7 +490,7 @@ class Game {
 	}
 	removePlayer(player) {
 		// removes a player (game)
-		return this.players.splice(this.users.indexOf(player, 1));
+		return this.players.splice(this.players.indexOf(player), 1);
 	}
 	playersToField() {
 		// return a field with all players (game)

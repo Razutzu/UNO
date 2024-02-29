@@ -167,7 +167,8 @@ class Player {
 				nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
 				await this.game.changeTurn(
 					nextPlayerWithSkip,
-					`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+					`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`,
+					false
 				);
 				break;
 			case "Reverse":
@@ -175,11 +176,12 @@ class Player {
 					nextPlayerWithSkip = this.game.getNextPlayerWithSkip();
 					await this.game.changeTurn(
 						nextPlayerWithSkip,
-						`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+						`${this.user.username} plays a **${card.name}** and skips ${this.game.getNextPlayer().user.username}'s turn\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`,
+						false
 					);
 				} else {
 					this.game.reversed = !this.game.reversed;
-					await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
+					await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`, false);
 				}
 				break;
 			case "Two":
@@ -189,7 +191,8 @@ class Player {
 				drawPlayer.addRandomCards(2);
 				await this.game.changeTurn(
 					nextPlayerWithSkip,
-					`${this.user.username} plays a **${card.name}** and ${drawPlayer.user.username} draws 2 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+					`${this.user.username} plays a **${card.name}** and ${drawPlayer.user.username} draws 2 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`,
+					false
 				);
 				break;
 			case "Wild":
@@ -199,7 +202,8 @@ class Player {
 
 					await this.game.changeTurn(
 						nextPlayerWithSkip,
-						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`
+						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`,
+						false
 					);
 				} else {
 					this.setStatus(2);
@@ -219,7 +223,8 @@ class Player {
 
 					await this.game.changeTurn(
 						nextPlayerWithSkip,
-						`${this.user.username} plays a **${card.name}** and changes the color to ${card.color}\n\n${drawPlayer.user.username} draws 4 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
+						`${this.user.username} plays a **${card.name}** and changes the color to ${card.color}\n\n${drawPlayer.user.username} draws 4 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`,
+						false
 					);
 				} else {
 					this.setStatus(2);
@@ -229,7 +234,7 @@ class Player {
 				}
 				break;
 			default:
-				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
+				await this.game.changeTurn(nextPlayerWithSkip, `${this.user.username} plays a **${card.name}**\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`, false);
 		}
 
 		return this.cards;

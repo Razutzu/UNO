@@ -40,6 +40,8 @@ class User {
 	}
 	async leave(action) {
 		// makes the user leave
+		if (this.game.hasStarted()) return this.leaveDuringGame();
+
 		if (this.game.users.length == 1) return this.game.end("The game has ended because everyone left.");
 		else {
 			if (action == 1) this.game.embed.setDescription(`${this.user.username} has been kicked!`);
@@ -68,6 +70,28 @@ class User {
 		this.game.embed.setFields(this.game.usersToField());
 
 		await this.game.updateControlPanel(null, false, this.host);
+		return await this.game.updateMessage();
+	}
+	async leaveDuringGame() {
+		this.game.removeUser(this);
+
+		if (this.host) this.game.users[0].host = true;
+
+		if (this.game.users.length == 1) return await this.game.stop(`The game has stopped because there aren't enough players`);
+
+		const player = this.game.getPlayer(this.user.id);
+		await player.updateGamePanel(null, false, true);
+
+		if (player.isTurn()) {
+			this.game.removePlayer(player);
+			return await this.game.changeTurn(null, `${this.user.username} left the game\n\nIt is ${this.game.getNextPlayer(true).user.username}'s turn`, false, true);
+		}
+
+		this.game.removePlayer(player);
+
+		this.game.embed.data.description += `\n\n${this.user.username} left the game.`;
+		this.game.embed.setFields(this.game.playersToField());
+
 		return await this.game.updateMessage();
 	}
 	async ban() {
