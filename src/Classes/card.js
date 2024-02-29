@@ -15,10 +15,6 @@ class Card {
 
 		this.attachment = `attachment://${this.array.join("")}.png`;
 	}
-	// changeOwner(player) {
-	// 	// changes the owner of the card
-	// 	return (this.player = player);
-	// }
 	update(color) {
 		this.color = color;
 		this.name = `${color} ${this.name}`;

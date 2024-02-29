@@ -40,28 +40,14 @@ class Game {
 		// control panel starting data
 		this.controlPanel = {
 			message: null,
-			embed: new EmbedBuilder().setColor(client.clr).setDescription("Choose a button from below to manage the game"),
-			components: [
-				new ActionRowBuilder().addComponents(
-					new ButtonBuilder().setCustomId("kick").setStyle(ButtonStyle.Danger).setLabel("Kick").setDisabled(true),
-					new ButtonBuilder().setCustomId("ban").setStyle(ButtonStyle.Danger).setLabel("Ban").setDisabled(true),
-					new ButtonBuilder().setCustomId("unban").setStyle(ButtonStyle.Danger).setLabel("Unban").setDisabled(true),
-					new ButtonBuilder().setCustomId("lock").setStyle(ButtonStyle.Danger).setLabel("Lock").setDisabled(true),
-					new ButtonBuilder().setCustomId("chost").setStyle(ButtonStyle.Danger).setLabel("Change Host").setDisabled(true)
-				),
-				new ActionRowBuilder().addComponents(
-					new StringSelectMenuBuilder()
-						.setCustomId("none")
-						.setPlaceholder("Nothing to choose")
-						.addOptions(new StringSelectMenuOptionBuilder().setLabel("None").setValue("None"))
-						.setDisabled(true)
-				),
-			],
+			embed: null,
+			components: null,
 		};
 
 		this.channel = interaction.channel;
 		this.message = null;
 
+		this.resetControlPanel();
 		this.updateMessage();
 	}
 
@@ -105,12 +91,38 @@ class Game {
 
 		return this.controlPanel.message;
 	}
+	resetControlPanel() {
+		this.controlPanel = {
+			message: null,
+			embed: new EmbedBuilder().setColor(client.clr).setDescription("Choose a button from below to manage the game"),
+			components: [
+				new ActionRowBuilder().addComponents(
+					new ButtonBuilder().setCustomId("kick").setStyle(ButtonStyle.Danger).setLabel("Kick").setDisabled(true),
+					new ButtonBuilder().setCustomId("ban").setStyle(ButtonStyle.Danger).setLabel("Ban").setDisabled(true),
+					new ButtonBuilder().setCustomId("unban").setStyle(ButtonStyle.Danger).setLabel("Unban").setDisabled(true),
+					new ButtonBuilder().setCustomId("lock").setStyle(ButtonStyle.Danger).setLabel("Lock").setDisabled(true),
+					new ButtonBuilder().setCustomId("chost").setStyle(ButtonStyle.Danger).setLabel("Change Host").setDisabled(true)
+				),
+				new ActionRowBuilder().addComponents(
+					new StringSelectMenuBuilder()
+						.setCustomId("none")
+						.setPlaceholder("Nothing to choose")
+						.addOptions(new StringSelectMenuOptionBuilder().setLabel("None").setValue("None"))
+						.setDisabled(true)
+				),
+			],
+		};
+	}
 	lobby() {
 		// lobby embed and components
 		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").setFields(this.usersToField());
 		this.components = [
 			new ActionRowBuilder().addComponents(
-				new ButtonBuilder().setCustomId("ready").setStyle(ButtonStyle.Success).setLabel("Ready").setDisabled(true),
+				new ButtonBuilder()
+					.setCustomId("ready")
+					.setStyle(ButtonStyle.Success)
+					.setLabel("Ready")
+					.setDisabled(!(this.players.length > 1)),
 				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
 				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
 			),
@@ -164,6 +176,31 @@ class Game {
 
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
+	}
+	async stop() {
+		// what happens when the match ends
+		this.lobby();
+
+		this.embed.setDescription(`${this.players[this.turn].user.username} plays a ${this.lastCard.name} and wins the game!`);
+		this.files = [];
+
+		for (const player of this.players) await player.updateGamePanel(null, false, true);
+
+		this.status = 0;
+
+		this.lastCard = null;
+		this.deck = [];
+
+		this.players = [];
+		this.mustCallUno = [];
+		this.calledUno = null;
+
+		this.reversed = false;
+
+		this.turn = 0;
+		this.resetControlPanel();
+
+		return await this.updateMessage(null, false, false);
 	}
 	async changeTurn(nextPlayerWithSkip, message) {
 		// changes the turn
@@ -418,7 +455,9 @@ class Game {
 		}
 
 		return {
-			name: `Players (${this.players.length}${this.users.length > this.players.length ? ` + ${this.users.length - this.players.length}` : ""}/${this.maxPlayers})`,
+			name: `Players (${this.players.length}${this.users.length > this.players.length ? ` + ${this.users.length - this.players.length}` : ""}/${this.maxPlayers}) ${
+				this.reversed ? "⬆️" : "⬇️"
+			}`,
 			value,
 		};
 	}

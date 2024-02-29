@@ -38,7 +38,7 @@ class Player {
 		// updates the player's game panel
 		if (disable) {
 			if (this.gamePanel.message)
-				await this.controlPanel.message.interaction.editReply({ content: "The game panel has been disabled.", embeds: [], components: [], files: [] }).catch((err) => client.err(err));
+				await this.gamePanel.message.interaction.editReply({ content: "The game panel has been disabled.", embeds: [], components: [], files: [] }).catch((err) => client.err(err));
 			return (this.gamePanel.message = null);
 		}
 		if (request) {
@@ -94,7 +94,7 @@ class Player {
 	drawGamePanel(card) {
 		// changes the game panel to status 3
 		this.setCardImage(card);
-		this.gamePanel.embed.setAuthor({ name: `You drew a playable a ${card.name}` }).setDescription("Keep it or play it?");
+		this.gamePanel.embed.setAuthor({ name: `You drew a playable a ${card.name}` });
 		this.gamePanel.components = [
 			new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId(`play_${card.id}`).setStyle(ButtonStyle.Primary).setLabel("Play"),
@@ -146,7 +146,11 @@ class Player {
 
 	async playCard(card) {
 		// makes the player play a car
-		// card.changeOwner(null);
+		if (this.cards.length == 1) {
+			this.game.lastCard = card;
+			return await this.game.stop();
+		}
+
 		if ((this.status == 1 && card.color != "Wild") || (["Wild", "Four"].includes(card.value) && this.status == 2)) {
 			this.removeCard(card);
 
@@ -267,6 +271,7 @@ class Player {
 			this.game.mustCallUno[0].player.addRandomCards(2);
 			this.game.mustCallUno[0].player.sortCards();
 			this.game.mustCallUno[0].player.updateEmbedCards();
+			this.game.mustCallUno[0].player.updateMenuCards();
 		}
 
 		this.game.mustCallUno.shift();
@@ -276,6 +281,7 @@ class Player {
 			await player.updateGamePanel(null, false, false);
 		}
 
+		this.game.setFields(this.playersToField());
 		return await this.game.updateMessage(null, false, false);
 	}
 	setCardImage(card) {
@@ -299,8 +305,6 @@ class Player {
 	}
 	addCard(card) {
 		// adds a specific card to this player
-		// card.changeOwner(this);
-
 		this.cards.push(card);
 		this.game.removeCard(card);
 
@@ -310,7 +314,6 @@ class Player {
 		// adds random cards to this users
 		for (let i = 0; i < amount; i++) {
 			const card = this.game.getRandomCard();
-			// card.changeOwner(this);
 
 			this.cards.push(card);
 			this.game.removeCard(card);
