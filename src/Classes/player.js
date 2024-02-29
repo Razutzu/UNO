@@ -139,6 +139,12 @@ class Player {
 			.setStyle(ButtonStyle.Danger)
 			.setDisabled(this.game.mustCallUno[0]?.turns > 0 ? false : true);
 	}
+	setStatus(status) {
+		this.preStatus = this.status;
+		this.status = status;
+
+		return this.status;
+	}
 
 	///////////////////////////////////////////////////
 	//                CARDS FUNCTIONS                //
@@ -191,8 +197,7 @@ class Player {
 				break;
 			case "Wild":
 				if (this.status == 2) {
-					this.preStatus = this.status;
-					this.status = 1;
+					this.setStatus(1);
 					this.normalGamePanel();
 
 					await this.game.changeTurn(
@@ -200,8 +205,7 @@ class Player {
 						`${this.user.username} plays a **${card.value} card** and changes the color to ${card.color}\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`
 					);
 				} else {
-					this.preStatus = this.status;
-					this.status = 2;
+					this.setStatus(2);
 					this.wildGamePanel(card, "wild");
 					await this.updateGamePanel(null, false, false);
 				}
@@ -213,8 +217,7 @@ class Player {
 
 					drawPlayer.addRandomCards(4);
 
-					this.preStatus = this.status;
-					this.status = 1;
+					this.setStatus(1);
 					this.normalGamePanel();
 
 					await this.game.changeTurn(
@@ -222,8 +225,7 @@ class Player {
 						`${this.user.username} plays a **${card.name}** and changes the color to ${card.color}\n\n${drawPlayer.user.username} draws 4 cards\n\nIt is ${nextPlayerWithSkip.user.username}'s turn`
 					);
 				} else {
-					this.preStatus = this.status;
-					this.status = 2;
+					this.setStatus(2);
 					this.wildGamePanel(card, "wild_four");
 
 					await this.updateGamePanel(null, false, false);
@@ -241,8 +243,7 @@ class Player {
 		this.addCard(card);
 
 		if (this.status == 1 && card.isPlayable()) {
-			this.preStatus = this.status;
-			this.status = 3;
+			this.setStatus(3);
 			this.drawGamePanel(card);
 
 			return await this.updateGamePanel(null, false, false);
@@ -281,7 +282,7 @@ class Player {
 			await player.updateGamePanel(null, false, false);
 		}
 
-		this.game.setFields(this.playersToField());
+		this.game.embed.setFields(this.playersToField());
 		return await this.game.updateMessage(null, false, false);
 	}
 	setCardImage(card) {

@@ -15,7 +15,7 @@ export default {
 		const kickUser = game.getUser(interaction.values[0]);
 		if (!kickUser) return await interaction.reply({ embeds: [client.embeds.notJoinedSecond], ephemeral: true }).catch((err) => client.err(err));
 
-		kickUser.leave();
+		kickUser.leave(1);
 
 		return await interaction.deferUpdate();
 	},

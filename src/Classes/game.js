@@ -92,6 +92,7 @@ class Game {
 		return this.controlPanel.message;
 	}
 	resetControlPanel() {
+		// resets the control panel
 		this.controlPanel = {
 			message: null,
 			embed: new EmbedBuilder().setColor(client.clr).setDescription("Choose a button from below to manage the game"),
@@ -112,10 +113,19 @@ class Game {
 				),
 			],
 		};
+
+		return this.controlPanel;
 	}
-	lobby() {
+	lobby(message) {
 		// lobby embed and components
-		this.embed = new EmbedBuilder().setColor(client.clr).setDescription("Game embed").setFields(this.usersToField());
+		this.embed = new EmbedBuilder()
+			.setColor(client.clr)
+			.setDescription(
+				`${
+					message ? message : ""
+				}\n\nHi, let's play Uno!\n\nIf you are the host of the game, press on 'Request Control Panel', so you can manage the game.\nIf you are not familiar with UNO, you can use the command /rules\nAnd that's it! Press on 'Ready' when you are ready and start playing!`
+			)
+			.setFields(this.usersToField());
 		this.components = [
 			new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
@@ -179,9 +189,7 @@ class Game {
 	}
 	async stop() {
 		// what happens when the match ends
-		this.lobby();
-
-		this.embed.setDescription(`${this.players[this.turn].user.username} plays a ${this.lastCard.name} and wins the game!`);
+		this.lobby(`${this.players[this.turn].user.username} plays a ${this.lastCard.name} and wins the game!`);
 		this.files = [];
 
 		for (const player of this.players) await player.updateGamePanel(null, false, true);

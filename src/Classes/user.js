@@ -22,6 +22,7 @@ class User {
 
 		if (this.game.controlPanelStatus == 1) this.game.updateUsersMenuOptions();
 
+		this.game.embed.setDescription(`${user.username} joined the game!`);
 		this.game.embed.setFields(this.game.usersToField());
 
 		this.game.updateControlPanel(null, false, false);
@@ -37,9 +38,14 @@ class User {
 
 		return await this.game.updateMessage();
 	}
-	async leave() {
+	async leave(action) {
 		// makes the user leave
 		if (this.game.users.length == 1) return this.game.end();
+		else {
+			if (action == 1) this.game.embed.setDescription(`${this.user.username} has been kicked!`);
+			else if (action == 2) this.game.embed.setDescription(`${this.user.username} has been banned!`);
+			else this.game.embed.setDescription(`${this.user.username} left the game!`);
+		}
 
 		if (this.game.isFull()) this.game.getJoinButton().setDisabled(false);
 
@@ -70,7 +76,7 @@ class User {
 
 		if (this.game.banned.length == 1) this.game.getUnbanButton().setDisabled(false);
 
-		return await this.leave();
+		return await this.leave(2);
 	}
 	async unban() {
 		// unbans the user
@@ -80,6 +86,8 @@ class User {
 			this.game.getUnbanButton().setDisabled(true);
 			this.game.resetMenu();
 		}
+
+		this.game.embed.setDescription(`${this.user.username} has been unbanned!`);
 
 		await this.game.updateControlPanel(null, false, false);
 		return await this.game.updateMessage();
@@ -97,6 +105,7 @@ class User {
 		this.game.users[userIndex] = currentHost;
 
 		this.game.resetMenu();
+		this.game.embed.setDescription(`${this.user.username} is now the host!`);
 		this.game.embed.setFields(this.game.usersToField());
 
 		await this.game.updateControlPanel(null, false, true);
