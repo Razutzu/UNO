@@ -23,10 +23,10 @@ export default {
 			player.updateMenuCards();
 			player.updateDrawButton();
 			player.updateUnoButton();
-			this.setStatus(1);
+			player.setStatus(1);
 		} else if (player.preStatus == 3) {
 			player.drawGamePanel(player.getCard(interaction.customId.split("_").slice(1).join("_")));
-			this.setStatus(3);
+			player.setStatus(3);
 		}
 
 		await player.updateGamePanel(null, false, false);

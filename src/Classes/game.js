@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, time } from "discord.js";
 
 import cardToEmbedColors from "../JSON/cardToEmbedColors.json" assert { type: "json" };
 import pack from "../JSON/pack.json" assert { type: "json" };
@@ -27,6 +27,7 @@ class Game {
 		this.controlPanelStatus = 0;
 
 		this.turn = 0;
+		this.inactiveTurns = 0;
 
 		this.deck = [];
 		this.lastCard = null;
@@ -36,6 +37,11 @@ class Game {
 		this.components = null;
 		this.files = null;
 		this.lobby();
+
+		this.inactivityTimeout = setTimeout(async () => {
+			await this.end("The game has ended due to inactivity.");
+		}, client.inactivityTimeoutTime);
+		this.turnTimeout = null;
 
 		// control panel starting data
 		this.controlPanel = {
@@ -57,6 +63,13 @@ class Game {
 
 	async updateMessage() {
 		// updates the game message when in lobby
+		if (this.status == 0) {
+			clearTimeout(this.inactivityTimeout);
+			this.inactivityTimeout = setTimeout(async () => {
+				await this.end("The game has ended due to inactivity.");
+			}, client.inactivityTimeoutTime);
+		}
+
 		if (!this.message) this.message = await this.channel.send({ embeds: [this.embed], components: this.components, files: this.files }).catch((err) => client.err(err));
 		else
 			await this.message.edit({ embeds: [this.embed], components: this.components, files: this.files }).catch(async (err) => {
@@ -116,31 +129,6 @@ class Game {
 
 		return this.controlPanel;
 	}
-	lobby(message) {
-		// lobby embed and components
-		this.embed = new EmbedBuilder()
-			.setColor(client.clr)
-			.setDescription(
-				`${
-					message ? message : ""
-				}\n\nHi, let's play Uno!\n\nIf you are the host of the game, press on 'Request Control Panel', so you can manage the game.\nIf you are not familiar with UNO, you can use the command /rules\nAnd that's it! Press on 'Ready' when you are ready and start playing!`
-			)
-			.setFields(this.usersToField());
-		this.components = [
-			new ActionRowBuilder().addComponents(
-				new ButtonBuilder()
-					.setCustomId("ready")
-					.setStyle(ButtonStyle.Success)
-					.setLabel("Ready")
-					.setDisabled(!(this.players.length > 1)),
-				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
-				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
-			),
-			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cpanel").setStyle(ButtonStyle.Danger).setLabel("Control Panel")),
-		];
-
-		return this.embed;
-	}
 	game() {
 		// game embed and components
 		this.embed = new EmbedBuilder()
@@ -163,6 +151,14 @@ class Game {
 		// starts the match
 		this.status = 1;
 
+		clearTimeout(this.inactivityTimeout);
+		this.inactivityTimeout = null;
+
+		this.turnTimeout = setTimeout(async () => {
+			this.inactiveTurns++;
+			await this.players[this.turn].drawCard(true);
+		}, client.turnTimeoutTime);
+
 		this.refillDeck();
 		this.lastCard = this.getRandomCard(true);
 
@@ -173,8 +169,7 @@ class Game {
 
 			this.players.push(player);
 
-			player.addRandomCards(6); // de schimbat
-			player.addCard(this.getPlayableCard());
+			player.addRandomCards(7); // de schimbat
 			player.sortCards();
 
 			player.updateEmbedCards();
@@ -187,14 +182,22 @@ class Game {
 		await this.updateControlPanel(null, false, true);
 		return await this.updateMessage();
 	}
-	async stop() {
+	async stop(message) {
 		// what happens when the match ends
-		this.lobby(`${this.players[this.turn].user.username} plays a ${this.lastCard.name} and wins the game!`);
+		clearTimeout(this.turnTimeout);
+		this.turnTimeout = null;
+
+		this.inactivityTimeout = setTimeout(async () => {
+			await this.end("The game has ended due to inactivity.");
+		}, client.inactivityTimeoutTime);
+
+		this.lobby(message);
 		this.files = [];
 
 		for (const player of this.players) await player.updateGamePanel(null, false, true);
 
 		this.status = 0;
+		this.inactiveTurns = 0;
 
 		this.lastCard = null;
 		this.deck = [];
@@ -210,8 +213,19 @@ class Game {
 
 		return await this.updateMessage(null, false, false);
 	}
-	async changeTurn(nextPlayerWithSkip, message) {
+	async changeTurn(nextPlayerWithSkip, message, timeoutForce) {
 		// changes the turn
+		console.log(this.inactiveTurns);
+
+		clearTimeout(this.turnTimeout);
+		this.turnTimeout = setTimeout(async () => {
+			this.inactiveTurns++;
+			await this.players[this.turn].drawCard(true);
+		}, client.turnTimeoutTime);
+
+		if (!timeoutForce) this.inactiveTurns = 0;
+		else if (this.inactiveTurns == 5) return await this.stop(`The game has stopped due to inactivity`);
+
 		if (this.mustCallUno[0]) {
 			if (this.mustCallUno[0].turns == 0) this.mustCallUno[0].turns++;
 			else this.mustCallUno.shift();
@@ -292,10 +306,34 @@ class Game {
 	///////////////////////////////////////////////////
 	//                LOBBY FUNCTIONS                //
 	///////////////////////////////////////////////////
+	lobby(message) {
+		// lobby embed and components
+		this.embed = new EmbedBuilder()
+			.setColor(client.clr)
+			.setDescription(
+				`${
+					message ? message : ""
+				}\n\nIf you are the host of the game, press on 'Request Control Panel', so you can manage the game.\nIf you are not familiar with UNO, you can use the command /rules\nAnd that's it! Press on 'Ready' when you are ready and start playing!`
+			)
+			.setFields(this.usersToField());
+		this.components = [
+			new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+					.setCustomId("ready")
+					.setStyle(ButtonStyle.Success)
+					.setLabel("Ready")
+					.setDisabled(!(this.players.length > 1)),
+				new ButtonBuilder().setCustomId("join").setStyle(ButtonStyle.Primary).setLabel("Join"),
+				new ButtonBuilder().setCustomId("leave").setStyle(ButtonStyle.Primary).setLabel("Leave")
+			),
+			new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("cpanel").setStyle(ButtonStyle.Danger).setLabel("Control Panel")),
+		];
 
-	async end() {
+		return this.embed;
+	}
+	async end(message) {
 		// deletes the game
-		this.embed.setDescription("The game has ended because everyone left.").data.fields = [];
+		this.embed.setDescription(message).data.fields = [];
 		this.components = [];
 		client.games.delete(this.id);
 

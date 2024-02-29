@@ -152,10 +152,7 @@ class Player {
 
 	async playCard(card) {
 		// makes the player play a car
-		if (this.cards.length == 1) {
-			this.game.lastCard = card;
-			return await this.game.stop();
-		}
+		if (this.cards.length == 1) return await this.game.stop(`${this.user.username} plays a ${card} and wins the game!`);
 
 		if ((this.status == 1 && card.color != "Wild") || (["Wild", "Four"].includes(card.value) && this.status == 2)) {
 			this.removeCard(card);
@@ -237,25 +234,31 @@ class Player {
 
 		return this.cards;
 	}
-	async drawCard() {
+	async drawCard(force) {
 		// makes the player draw a card
-		const card = this.game.getPlayableCard();
-		this.addCard(card);
+		const card = this.game.getRandomCard();
 
-		if (this.status == 1 && card.isPlayable()) {
+		if ((force && this.status != 3 && this.preStatus != 3) || this.status == 1) this.addCard(card);
+
+		if (!force && this.status == 1 && card.isPlayable()) {
 			this.setStatus(3);
 			this.drawGamePanel(card);
 
 			return await this.updateGamePanel(null, false, false);
 		}
 
-		return await this.keepCard();
+		return await this.keepCard(force);
 	}
-	async keepCard() {
+	async keepCard(force) {
 		// keeps a playable drawn card
 		if (this.game.calledUno == this) this.game.calledUno = null;
 
-		return await this.game.changeTurn(null, `${this.user.username} draws a card\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`);
+		if (force) {
+			this.normalGamePanel();
+			this.setStatus(1);
+		}
+
+		return await this.game.changeTurn(null, `${this.user.username} draws a card\n\nIt is ${this.game.getNextPlayer().user.username}'s turn`, force);
 	}
 	async uno() {
 		// makes the player call UNO!
@@ -283,7 +286,7 @@ class Player {
 		}
 
 		this.game.embed.setFields(this.playersToField());
-		return await this.game.updateMessage(null, false, false);
+		return await this.game.updateMessage();
 	}
 	setCardImage(card) {
 		// sets the card image

@@ -11,6 +11,9 @@ class ExtendedClient extends Client {
 		this.clr = "#d40000";
 		this.ready = false;
 
+		this.inactivityTimeoutTime = 60000;
+		this.turnTimeoutTime = 10000;
+
 		this.games = new Map();
 		this.cards = new Map();
 

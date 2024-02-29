@@ -17,7 +17,7 @@ export default {
 
 		if (player.status != 3) return await interaction.reply({ embeds: [client.embeds.cantPlay], ephemeral: true }).catch((err) => client.err(err));
 
-		this.setStatus(1);
+		player.setStatus(1);
 		player.normalGamePanel();
 
 		await player.keepCard();

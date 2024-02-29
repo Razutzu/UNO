@@ -40,7 +40,7 @@ class User {
 	}
 	async leave(action) {
 		// makes the user leave
-		if (this.game.users.length == 1) return this.game.end();
+		if (this.game.users.length == 1) return this.game.end("The game has ended because everyone left.");
 		else {
 			if (action == 1) this.game.embed.setDescription(`${this.user.username} has been kicked!`);
 			else if (action == 2) this.game.embed.setDescription(`${this.user.username} has been banned!`);
