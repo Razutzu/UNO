@@ -313,7 +313,7 @@ class Game {
 			.setDescription(
 				`${
 					message ? message : ""
-				}\n\nIf you are the host of the game, press on 'Request Control Panel', so you can manage the game.\nIf you are not familiar with UNO, you can use the command /rules\nAnd that's it! Press on 'Ready' when you are ready and start playing!`
+				}\n\nIf you are the host of the game, press on 'Request Control Panel', so you can manage the game.\nThe game follows the classic UNO rules (which you can find online), but with a few changes. Please use the command '/info' for more details.\nAnd that's it! Press on 'Ready' when you are ready and start playing!`
 			)
 			.setFields(this.usersToField());
 		this.components = [

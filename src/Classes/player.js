@@ -314,6 +314,8 @@ class Player {
 	}
 	addCard(card) {
 		// adds a specific card to this player
+		if (this.game.deck.length == 0) this.game.refillDeck();
+
 		this.cards.push(card);
 		this.game.removeCard(card);
 
@@ -321,6 +323,8 @@ class Player {
 	}
 	addRandomCards(amount) {
 		// adds random cards to this users
+		if (this.game.deck.length - amount <= 0) this.game.refillDeck();
+
 		for (let i = 0; i < amount; i++) {
 			const card = this.game.getRandomCard();
 
