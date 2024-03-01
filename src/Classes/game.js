@@ -215,8 +215,6 @@ class Game {
 	}
 	async changeTurn(nextPlayerWithSkip, message, timeoutForce, playerLeft) {
 		// changes the turn
-		console.log(this.inactiveTurns);
-
 		clearTimeout(this.turnTimeout);
 		this.turnTimeout = setTimeout(async () => {
 			this.inactiveTurns++;
@@ -261,7 +259,6 @@ class Game {
 	updateCardImage() {
 		// updates the card image
 		this.embed.setThumbnail(this.lastCard.attachment);
-		console.log(client.cards.get(this.lastCard.name));
 		this.files = [client.cards.get(this.lastCard.name)];
 
 		return this.embed;

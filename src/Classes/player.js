@@ -152,7 +152,7 @@ class Player {
 
 	async playCard(card) {
 		// makes the player play a car
-		if (this.cards.length == 1) return await this.game.stop(`${this.user.username} plays a ${card} and wins the game!`);
+		if (this.cards.length == 1) return await this.game.stop(`${this.user.username} plays a ${card.name} and wins the game!`);
 
 		if ((this.status == 1 && card.color != "Wild") || (["Wild", "Four"].includes(card.value) && this.status == 2)) {
 			this.removeCard(card);
